@@ -1,0 +1,1 @@
+mos-c64-clang -Os -o %1.s -Wl,--lto-emit-asm %1.c
