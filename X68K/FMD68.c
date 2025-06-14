@@ -296,6 +296,8 @@ void play_fmdbgm(void)
 	unsigned char i, ch = 0;
 	unsigned char noise = 0;
 
+	FEEDVOL = 0;
+	FCOUNT = 1;
 	STOPPARTS = 0;
 	ENDFRG = 0;
 	NSAVE = 0;
@@ -313,6 +315,7 @@ void play_fmdbgm(void)
 		}
 		STARTADR[i] -= 0x1000;
 		OFFSET[i] = STARTADR[i];
+		LENGTH[i] = 5;
 		set_tone(noise, i);
 	}
 	LOOPTIME = 0; //no / 256;
