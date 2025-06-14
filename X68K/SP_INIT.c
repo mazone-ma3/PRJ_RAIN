@@ -520,8 +520,6 @@ dum:	_iocs_b_super(0);		/* スーパーバイザモード 最適化防止にラベルを付ける */
 		pcm_load(pcm_filename, pcmbuffer, MAX_PCM_SIZE); /* "TEST.PDX" */
 	}
 
-	msxspconv("RAINCHR5.SC5", CHR_TOP, 256 - CHR_TOP);
-	font_load("FONTYOKO.SC5", 0, PCGPARTS);
 
 #ifdef XSP
 	/* XSP の初期化 */
@@ -529,6 +527,9 @@ dum:	_iocs_b_super(0);		/* スーパーバイザモード 最適化防止にラベルを付ける */
 	/* PCM8A との衝突を回避 */
 	pcm8a_vsyncint_on();
 #endif
+
+	msxspconv("RAINCHR5.SC5", PCGPARTS / 4, 256 - PCGPARTS / 4);
+	font_load("FONTYOKO.SC5", 0, PCGPARTS);
 
 //	pcm_play(&SNDBUFF[0][0], pcmsize[0]);
 

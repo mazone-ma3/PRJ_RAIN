@@ -121,7 +121,18 @@ int msxspconv(char *loadfil, short offset, short sprparts)
 
 	long i, j,k,y, x, xx, yy, no, max_xx;
 
+	unsigned short data;
+
+//#ifndef XSP
 	unsigned short *spram;
+	spram  = (unsigned short *)0xeb8000;
+	spram += ((64 * offset));
+//#endif
+#ifdef XSP
+	short *ppcg_data = (short *)pcg_dat;
+	xsp_pcgmask_on(0, 128-1); //short start_no, short end_no);
+#endif
+
 
 	if ((stream[0] = fopen( loadfil, "rb")) == NULL) {
 		fprintf(stderr, "Can\'t open file %s.", loadfil);
@@ -154,8 +165,7 @@ int msxspconv(char *loadfil, short offset, short sprparts)
 	}
 	fclose(stream[0]);
 	max_xx = 128;
-	spram  = (unsigned short *)0xeb8000;
-	spram += ((64 * offset));
+
 
 	j = 0;
 	xx=0;
@@ -173,7 +183,12 @@ int msxspconv(char *loadfil, short offset, short sprparts)
 							yy+=PCGSIZEY*2;
 						}
 
-						*(spram++) = msxcolor[x + xx][y + yy] * 256 + msxcolor[x + xx + 1][y + yy];
+						data = msxcolor[x + xx][y + yy] * 256 + msxcolor[x + xx + 1][y + yy];
+//#ifndef XSP
+						*(spram++) = data;
+#ifdef XSP
+						*ppcg_data++ = data;
+#endif
 					}
 				}
 				yy+=PCGSIZEY;
@@ -182,6 +197,10 @@ int msxspconv(char *loadfil, short offset, short sprparts)
 			xx+=PCGSIZEX;
 		}
 	}
+#ifdef XSP
+	/* PCG データと PCG 配置管理をテーブルを指定 */
+	xsp_pcgdat_set(pcg_dat, pcg_alt, sizeof(pcg_alt));
+#endif
 
 	return 0;
 }

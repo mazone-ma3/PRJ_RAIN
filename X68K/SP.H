@@ -153,8 +153,8 @@ EXTERN CHR_PARA *pchr_data;
 	pchr_data = &chr_data[NO];\
 	pchr_data->x = (X >> SHIFT_NUM) + SPR_OFS_X + 16; \
 	pchr_data->y = (Y >> SHIFT_NUM) + SPR_OFS_Y + 16; \
-	pchr_data->pat_num = PAT; \
-	pchr_data->atr = (PAL << 8) + (ATR << 14) + 0x10 + PRO;\
+	pchr_data->pat_num = PAT & 0x3fff; \
+	pchr_data->atr = (PAL << 8) | (ATR << 14) | 0x10 | PRO | (PAT & 0xc000);\
 	NO++; \
 }
 #endif
@@ -179,11 +179,17 @@ EXTERN CHR_PARA *pchr_data;
 	}\
 }
 
-enum {
+/*enum {
 	PRO_JIKI = 0,
 	PRO_JIKISHOT,
 	PRO_TEKI,
 	PRO_TEKISHOT
 };
-
+*/
+enum {
+	PRO_TEKISHOT = 0,
+	PRO_TEKI,
+	PRO_JIKISHOT,
+	PRO_JIKI
+};
 #endif

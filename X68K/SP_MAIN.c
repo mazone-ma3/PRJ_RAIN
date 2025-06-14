@@ -850,11 +850,11 @@ void set_sprite_new(void)
 //			if(se_check())
 //				se_stop();
 //		S_IL_FUNC(se_play(sndtable[0], seflag - 1));	/* Œø‰Ê‰¹ */
-		if(mcd_status >= 0){
-			pcm_play(&SNDBUFF[seflag - 1][0], pcmsize[seflag - 1]);
-		}
-//		_iocs_adpcmout(&SNDBUFF[seflag - 1][0], pcmsize[seflag - 1], 4 * 256 + 3);
-//		_iocs_adpcmout(&SNDBUFF[seflag - 1][0], 4 * 256 + 3, pcmsize[seflag - 1]);
+//		if(mcd_status >= 0){
+//			pcm_play(&SNDBUFF[seflag - 1][0], pcmsize[seflag - 1]);
+//		}
+		_iocs_adpcmmod(0);
+		_iocs_adpcmout(&SNDBUFF[seflag - 1][0], 4 * 256 + 3, pcmsize[seflag - 1]);
 		seflag = 0;
 	}
 }
@@ -929,7 +929,6 @@ void set_sprite(void)
 //		if(mcd_status >= 0){
 //			pcm_play(&SNDBUFF[seflag - 1][0], pcmsize[seflag - 1]);
 //		}
-//		_iocs_adpcmout(&SNDBUFF[seflag - 1][0], pcmsize[seflag - 1], 4 * 256 + 3);
 		_iocs_adpcmmod(0);
 		_iocs_adpcmout(&SNDBUFF[seflag - 1][0], 4 * 256 + 3, pcmsize[seflag - 1]);
 		seflag = 0;
