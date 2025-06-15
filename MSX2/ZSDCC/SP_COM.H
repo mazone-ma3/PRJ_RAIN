@@ -639,19 +639,19 @@ void shottome(void) //unsigned char dir, unsigned char pat)
 //	unsigned char j;
 
 	if(tkshot_free[MAX_TKSHOT] != END_LIST){
-		ADD_LIST(MAX_TKSHOT, j, tkshot_next, tkshot_free);
+		ADD_LIST(MAX_TKSHOT, k, tkshot_next, tkshot_free);
 
 		if(uramode > 1){
-			tkshot_x[j] = tmp_x + (4 << SHIFT_NUM) + (tkshot_xx[j] = direction[dir][0] * 3 / 2);
-			tkshot_y[j] = tmp_y + (4 << SHIFT_NUM_Y) + (tkshot_yy[j] = direction[dir][1] * 3 / 2);
+			tkshot_x[k] = tmp_x + (4 << SHIFT_NUM) + (tkshot_xx[k] = direction[dir][0] * 3 / 2);
+			tkshot_y[k] = tmp_y + (4 << SHIFT_NUM_Y) + (tkshot_yy[k] = direction[dir][1] * 3 / 2);
 		}else{
-			tkshot_x[j] = tmp_x + (4 << SHIFT_NUM) + (tkshot_xx[j] = direction[dir][0]);
-			tkshot_y[j] = tmp_y + (4 << SHIFT_NUM_Y) + (tkshot_yy[j] = direction[dir][1]);
+			tkshot_x[k] = tmp_x + (4 << SHIFT_NUM) + (tkshot_xx[k] = direction[dir][0]);
+			tkshot_y[k] = tmp_y + (4 << SHIFT_NUM_Y) + (tkshot_yy[k] = direction[dir][1]);
 		}
 		if(pat == PAT_TKSHOT1)
-			if(tkshot_xx[j] > 0)
+			if(tkshot_xx[k] > 0)
 				pat = PAT_TKSHOT3;
-		tkshot_pat[j] = pat;
+		tkshot_pat[k] = pat;
 		tkshotnum++;
 	}
 }
@@ -660,13 +660,17 @@ void shottome2(void) //unsigned char dir, unsigned char pat)
 {
 //	int j;
 //	unsigned char j;
+//	return;
 
 	if(tkshot_free[MAX_TKSHOT] != END_LIST){
-		ADD_LIST(MAX_TKSHOT, j, tkshot_next, tkshot_free);
-		tkshot_x[j] = tmp_x + (4 << SHIFT_NUM) + (tkshot_xx[j] = direction[dir][0] * 3 / 2);
-		tkshot_y[j] = tmp_y + (4 << SHIFT_NUM_Y) + (tkshot_yy[j] = direction[dir][1] * 3 / 2);
+		ADD_LIST(MAX_TKSHOT, k, tkshot_next, tkshot_free);
+		tkshot_x[k] = tmp_x + (4 << SHIFT_NUM) + (tkshot_xx[k] = direction[dir][0] * 3 / 2);
+		tkshot_y[k] = tmp_y + (4 << SHIFT_NUM_Y) + (tkshot_yy[k] = direction[dir][1] * 3 / 2);
 
-		tkshot_pat[j] = pat;
+		if(pat == PAT_TKSHOT1)
+			if(tkshot_xx[k] > 0)
+				pat = PAT_TKSHOT3;
+		tkshot_pat[k] = pat;
 		tkshotnum++;
 	}
 
@@ -828,7 +832,7 @@ void move_tekishot(void)
 void check_revshot(void)
 {
 //	int l;
-
+	return;
 	if(uramode > 2){
 		l = tekishot_dir();
 
@@ -841,10 +845,11 @@ void check_revshot(void)
 		dir = (l - 2 + 32) % 32;
 		pat = PAT_TKSHOT1;
 		shottome2(); //(l - 2 + 32) % 32, PAT_TKSHOT1);
-	}else
+	}else{
 		dir = tekishot_dir();
 		pat = PAT_TKSHOT1;
 		shottome2(); //tekishot_dir(), PAT_TKSHOT1);
+	}
 }
 
 /***********************/
@@ -1300,6 +1305,8 @@ void move_teki(void)
 		if(l >= 0)
 			if(l < MOVETEKIMAX)
 				moveteki_tbl[l](); //(i);
+			else
+				return;
 //				move_teki_pat0(); //i);
 
 		teki_x[i] = tmp_x;
