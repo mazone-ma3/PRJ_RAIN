@@ -1364,12 +1364,12 @@ void game_init(void){
 		}
 	}
 
-	stage = 4;
+	stage = 0;
 	waitcount = 0;
 	schedule_ptr = 0;
 	command_num = COM_DUMMY;
 	command = (int *)stg1_data;
-	uramode = 1; //0;
+	uramode = 0;
 //	renshaflag = FALSE;
 	renshaflag = TRUE;
 
