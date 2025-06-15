@@ -80,13 +80,15 @@ enum { AR, DR, SR, RR, SL, OL, KS, MUL,DT1,DT2,AME };
 enum { D1R = DR , TL=OL, D1L = SL, D2R=SR};
 enum {CON = 4 * 11, FL};
 
+char op[4] = {0, 2, 1, 3};
+
 /* âπêFê›íË */
 void set_tone(int no, int ch)
 {
 	unsigned char i, j, k;
 
 	for(i = 0; i < 4; ++i){
-		j = ch + i * 8;
+		j = ch + op[i] * 8;
 		k = i * 11;
 		set_fm(0x40 + j, tone_table[no][MUL + k] | tone_table[no][DT1 + k] * 16);
 		set_fm(0x60 + j, tone_table[no][TL + k]);
@@ -97,7 +99,6 @@ void set_tone(int no, int ch)
 	}
 	j = 0x20 + ch;
 	set_fm(j, tone_table[no][CON] | tone_table[no][FL] * 8 | 0xc0);
-//	set_fm(j, tone_table[no][CON] | tone_table[no][FL]);
 
 /*
 	for(i = 0; i < 4; ++i){

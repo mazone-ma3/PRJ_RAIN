@@ -598,7 +598,7 @@ dum:	_iocs_b_super(0);		/* スーパーバイザモード 最適化防止にラベルを付ける */
 		do{
 			keycode = keyscan();
 			if(//(get_key(7) & 0x04) || 
-				(keycode & KEY_B)){
+				(keycode & KEY_B) || (_iocs_bitsns(0) & 2)){
 				errlv = SYSEXIT;
 				break;
 			}
