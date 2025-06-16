@@ -824,8 +824,8 @@ short game_run(short mode){
 			if(!mypal_dmgtime){
 				mypal = CHRPAL_NO;
 				if(!my_hp){
-/*					mypal = REVPAL_NO;
-					timeup = 60 * 10;
+					mypal = REVPAL_NO;
+/*					timeup = 60 * 10;
 					scrlspd = 0;
 
 					do{
