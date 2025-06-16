@@ -1,2 +1,2 @@
-run386 -nocrt RAIN.EXP %1
+run386 RAIN.EXP %1
 
