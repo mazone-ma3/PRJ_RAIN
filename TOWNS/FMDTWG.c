@@ -161,22 +161,46 @@ void set_fm(unsigned char bank, unsigned char reg, unsigned char data)
 }
 #endif
 
+/*  AR  DR  SR  RR  SL  OL  KS  ML DT1 DT2 AME */
+enum { AR, DR, SR, RR, SL, OL, KS, MUL,DT1,DT2,AME };
+enum { D1R = DR , TL=OL, D1L = SL, D2R=SR};
+enum {CON = 4 * 11, FL};
+
+char op[4] = {0, 2, 1, 3};
+
 /* ‰¹FÝ’è */
 void set_tone(unsigned char no, unsigned char ch)
 {
-	char i, j, bank = 0;
+	unsigned char i, j, k, bank = 0;
 	if(ch >= 3){
 		ch -= 3;
 		bank = 1;
 	}
 
-	j = 0x30 + ch;
+	for(i = 0; i < 4; ++i){
+		j = ch + op[i] * 4;
+		k = i * 11;
+		set_fm(bank, 0x30 + j, tone_table[no][MUL + k] | tone_table[no][DT1 + k] * 16);
+		set_fm(bank, 0x40 + j, tone_table[no][TL + k]);
+		set_fm(bank, 0x50 + j, tone_table[no][AR + k] | tone_table[no][KS + k] * 64);
+		set_fm(bank, 0x60 + j, tone_table[no][D1R + k] | tone_table[no][AME + k] * 128);
+		set_fm(bank, 0x70 + j,tone_table[no][SR + k]); // | tone_table[no][DT2 + k] * 64);
+		set_fm(bank, 0x80 + j, tone_table[no][RR + k] | tone_table[no][SL + k] * 16);
+//		set_fm(bank, 0x90 + j, 0x0f);
+	}
+//	j = 0xb0 + ch;
+	set_fm(bank, 0xb0 + ch, tone_table[no][CON] | tone_table[no][FL] * 8);// | 0xc0);
+//	set_fm(bank, 0xb4 + ch, 0xc0);
+
+
+/*	j = 0x30 + ch;
 	for(i = 0; i < 28; ++i){
 		set_fm(bank, j, tone_table[no][i]);
 		j += 4;
 	}
 	j += 0x10;
 		set_fm(bank, j, tone_table[no][i]);
+*/
 }
 
 /* ‰¹’öÝ’è */
