@@ -31,8 +31,10 @@ _int_vsync_ent:
 	cli
 
 	push	%ds
-	push	%eax
-	push	%ebx
+	pushal
+	pushfl
+//	push	%eax
+//	push	%ebx
 
 //	mov	$0x40,%al
 //	out %al,$0x22
@@ -55,8 +57,10 @@ _int_vsync_ent:
 	movb	$0x20,%al
 	outb	%al,$0	;/* EOI(Master) */
 
-	pop	%ebx
-	pop	%eax
+//	pop	%ebx
+//	pop	%eax
+	popfl
+	popal
 	pop	%ds
 	iretl
 
