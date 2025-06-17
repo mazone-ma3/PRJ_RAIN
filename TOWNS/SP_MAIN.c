@@ -29,10 +29,14 @@ extern void init_vsync_ent(void);
 extern void reset_vsync_ent(void);
 
 volatile int vsync_flag = 0;
-int VECTOR_ADRV;
-short VECTOR_SEGV;
-int VECTOR_REAV;
-short datasegment;
+//int VECTOR_ADRV;
+//short
+//int VECTOR_SEGV;
+//int VECTOR_REAV;
+//int saveIMR_S;
+
+//short
+//int datasegment;
 
 #define _disable() asm("cli\n")
 #define _enable() asm("sti\n")
@@ -66,7 +70,7 @@ int init_vsync(void)
 
 //	outportb(0x04ea, 0xff);
 //	outportb(0x22,0x40);
-//	outportb(0x5ca,0);
+	outportb(0x5ca,0);
 	return 0;
 }
 

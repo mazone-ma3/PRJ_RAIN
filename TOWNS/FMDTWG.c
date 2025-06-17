@@ -59,7 +59,8 @@ void SND_int(void)
 {
 //	return;
 
-	SND_fm_timer_a_set(0,0);
+	_disable();
+//	SND_fm_timer_a_set(0,0);
 	SND_fm_timer_b_set(0,0);
 
 	_disable();
@@ -221,10 +222,12 @@ char key[6] = {0, 1, 2, 4, 5, 6};
 void stop(void)
 {
 	unsigned char i;
+	_disable();
 	SND_fm_timer_b_set(0,0);
 	for(i = 0; i < PARTSUU; ++i){
 		set_fm(0, 0x28, 0x00 | key[i]);	/* off */
 	}
+	_enable();
 //	SND_end();
 }
 

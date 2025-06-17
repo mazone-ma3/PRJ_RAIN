@@ -1,64 +1,63 @@
-	.text
-	.data
+.ascii	"VSYNC"
+.data
+//.extern _int_vsync
+//.extern _datasegment
+//.extern _VECTOR_ADRV
+//.extern _VECTOR_SEGV
+//.extern _VECTOR_REAV
+.extern _vsync_flag
+//.extern _saveIMR_S
 
+.align 2
+_datasegment:
+	.long	0
+_VECTOR_ADRV:
+	.long	0
+_VECTOR_SEGV:
+	.long	0
+_VECTOR_REAV:
+	.long	0
+//_vsync_flag:
+//	.long	0
+_saveIMR_S:
+	.long	0
+
+.text
 .global _int_vsync_ent
 .global _init_vsync_ent
 .global _reset_vsync_ent
-//.extern _int_vsync
-.extern _datasegment
-.extern _VECTOR_ADRV
-.extern _VECTOR_SEGV
-.extern _VECTOR_REAV
-.extern _vsync_flag
-
-		.ascii	"VSYNC"
 
 _int_vsync_ent:
-	pushal
-	pushfl
+	cli
+
 	push	%ds
+	push	%eax
+	push	%ebx
 
 //	mov	$0x40,%al
 //	out %al,$0x22
 
-	mov $0x14,%ax
-	mov	%ax,%ds
+	mov		$0x05ca,%dx
+	outb	%al,%dx		// VSYNC FLAG Clear
 
-//	cli
+	movw	$0x14,%ax
+	movw	%ax,%ds
 
-//	call _int_vsync
-//	jmp	__skip
+	movl	$1,_vsync_flag
 
-	mov	$1,%eax
-	mov	%eax,_vsync_flag
+	movb	$0x20,%al
+	outb	%al,$0x0010	;/* EOI(Slave) */
 
-	xor	%eax,%eax
-	out	%al,$0x05ca
-
-	out	%al,$0x06c // 1μ秒ウェイト
+	outb	%al,$0x06c // 1μ秒ウェイト
 	cmc
 	cmc
 
-//	mov	00100000b,%al
-	mov	$0x20,%al
-	out	%al,$0x0010	;/* EOI(Slave) */
+	movb	$0x20,%al
+	outb	%al,$0	;/* EOI(Master) */
 
-	out	%al,$0x06c // 1μ秒ウェイト
-	cmc
-	cmc
-
-	out %al,$0	;/* EOI(Master) */
-
-	out	%al,$0x06c // 1μ秒ウェイト
-	cmc
-	cmc
-__skip:
-
-//	sti
-
+	pop	%ebx
+	pop	%eax
 	pop	%ds
-	popfl
-	popal
 	iretl
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -82,14 +81,14 @@ _init_vsync_ent:
 	mov	$0x04b,%cl
 	mov	$0x2502,%ax
 	int	$0x21
-	mov	%es,%ax
-	mov	%ebx,_VECTOR_ADRV
-	mov	%ax,_VECTOR_SEGV
+	movw	%es,%ax
+	movl	%ebx,_VECTOR_ADRV
+	movw	%ax,_VECTOR_SEGV
 
-	mov	$0x04b,%cl
-	mov	$0x2503,%ax
+	movb	$0x04b,%cl
+	movw	$0x2503,%ax
 	int	$0x21
-	mov	%ebx,_VECTOR_REAV
+	movl	%ebx,_VECTOR_REAV
 
 	push	%ds
 
@@ -117,7 +116,11 @@ __noerror1:
 	cmc
 	cmc
 
-	in	$0x0010+2,%al
+	inb	$0x0010+2,%al
+
+//	mov	_saveIMR_S,%dx
+//	mov	%al,%dx
+	movb	%al,_saveIMR_S
 
 	out	%al,$0x06c // 1μ秒ウェイト
 	cmc
@@ -125,10 +128,10 @@ __noerror1:
 
 //	mov	00100000b,%dl
 //	mov	00001000b,%dl
-	mov	$0x08,%dl
-	xor	$0xff,%dl
-	and	%dl,%al
-	out	%al,$0x0010+2
+	movb	$0x08,%dl
+	xorb	$0xff,%dl
+	andb	%dl,%al
+	outb	%al,$0x0010+2	// 割り込み許可
 	sti
 
 __end:
@@ -148,35 +151,42 @@ _reset_vsync_ent:
 	pushal
 	pushfl
 
-	out	%al,$0x06c	// 1μ秒ウェイト
-	cmc
-	cmc
-
-	in	$0x0010+2,%al
+//	jmp	_resetskip
 
 	out	%al,$0x06c	// 1μ秒ウェイト
 	cmc
 	cmc
 
-//	or	00001000b,%al
-	or	$0x80,%al
-	out	%al,$0x0010+2
+//
+	inb	$0x0010+2,%al
 
 	out	%al,$0x06c	// 1μ秒ウェイト
 	cmc
 	cmc
 
+//	orb	00001000b,%al
+	orb	$0x80,%al
+//
+	movb	_saveIMR_S,%al
+	outb	%al,$0x0010+2	// 割り込み復帰
+
+
+	out	%al,$0x06c	// 1μ秒ウェイト
+	cmc
+	cmc
+
+//_resetskip:
 	push	%ds
 //	mov	%cs,%ax
 //	mov %ax,%ds
 
 	mov	$0x4b,%cl
-	mov	_VECTOR_ADRV,%edx
-	mov	_VECTOR_SEGV,%ax
-	mov	_VECTOR_REAV,%ebx
+	movl	_VECTOR_ADRV,%edx
+	movw	_VECTOR_SEGV,%ax
+	movl	_VECTOR_REAV,%ebx
 
-	mov	%ax,%ds
-	mov	$0x2507,%ax
+	movw	%ax,%ds
+	movw	$0x2507,%ax
 	int	$0x21
 
 	pop	%ds

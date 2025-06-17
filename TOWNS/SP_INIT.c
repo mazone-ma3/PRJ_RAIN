@@ -298,6 +298,20 @@ int	main(int argc,char **argv){
 	short errlv;
 	unsigned char keycode;
 
+/*	SND_init(sndwork);
+	SND_pcm_mode_set( 1 ); 
+	SND_elevol_mute(0x33);
+	init_vsync();
+	for(j = 0; j < 5; ++j){
+		for(i = 0; i < 60; ++i){
+			wait_vsync();
+		}
+		printf("%d\n", j);
+	}
+	reset_vsync();
+	SND_end();
+	return 0;
+*/
 //	_FP_SEG(vram)=0x120;
 //	_FP_SEG(spram)=0x130;
 
@@ -408,11 +422,11 @@ int	main(int argc,char **argv){
 
 	spr_clear();
 	spr_count = old_count = 0;
+
 	init_vsync();
 
-
 	do{
-		wait_vsync2();
+//		wait_vsync2();
 		pal_allblack(BGPAL_NO);
 		pal_allblack(CHRPAL_NO);
 		paint(0x0);
@@ -448,6 +462,7 @@ int	main(int argc,char **argv){
 			bg_roll();
 		}while(!(keycode & (KEY_A | KEY_START)));
 
+//	goto end;
 
 		if(((errlv// = title_demo())
 			 == SYSERR) || (errlv == SYSEXIT)))
@@ -516,8 +531,9 @@ int	main(int argc,char **argv){
 		spr_clear();
 		wait_vsync2();
 	}while(KYB_read( 1, &encode ) != 0x1b);
-	reset_vsync();
 end:
+	reset_vsync();
+
 	pal_allblack(BGPAL_NO);
 	pal_allblack(CHRPAL_NO);
 
@@ -539,6 +555,8 @@ end2:
 	SND_elevol_mute(0x00);
 //	MSV_end();
 	SND_end();
+
+//	reset_vsync();
 
 	return NOERROR;
 }
