@@ -13,6 +13,8 @@
 #include "keyx68.h"
 #include "tone.h"
 
+#define IOCS
+
 FILE *fmdstream[2];
 
 #define ERROR 1
@@ -65,6 +67,9 @@ short bload2(char *loadfil, unsigned short offset)
 /* FMÉåÉWÉXÉ^ê›íË */
 void set_fm(unsigned char reg, unsigned char data)
 {
+#ifdef IOCS
+	_iocs_opmset(reg, data);
+#else
 	unsigned char a;
 
 	while(*port2 & 0x80);
@@ -73,6 +78,7 @@ dummy:
 	while (*port2 & 0x80);
 dummy2:
 	*port2 = data;
+#endif
 }
 
 /*  AR  DR  SR  RR  SL  OL  KS  ML DT1 DT2 AME */
