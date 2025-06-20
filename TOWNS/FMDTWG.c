@@ -105,44 +105,41 @@ short bload2(char *loadfil, unsigned short offset)
 /* FMレジスタ設定 ch.1-3 */
 #ifdef BIOS
 
-int bank1,regNo1,data1;
-
-int SND_fm_write_data2(void) //int bank, int regNo, int data )
+void set_fm(unsigned char bank, unsigned char reg, unsigned char data)
 {
-	asm(
-	"enter	$0,$0\n"
-	"pushl	%ebx\n"
-	"pushl	%edx\n"
+//	register char rd0 asm("bh");
+//	register char rd1 asm("dh");
+//	register char rd2 asm("dl");
 
-//	"movb	8(%ebp),%bh\n"
-//	"movb	12(%ebp),%dh\n"
-//	"movb	16(%ebp),%dl\n"
+	register short rd0 asm("bx");
+	register short rd1 asm("dx");
 
-	"movb	_bank1,%bh\n"
-	"movb	_regNo1,%dh\n"
-	"movb	_data1,%dl\n"
+	register long rd3 asm("eax");
 
-	"movb	$0x11,%ah\n"
-	"call	sound_bios1\n"
-
-	"movzbl	%al,%eax\n"
-
-	"popl	%edx\n"
-	"popl	%ebx\n"
-	"leave\n"
-	);
-}
-
-
-void set_fm(char bank, char reg, char data)
-{
 	while(SND_fm_read_status() & 0x80);
-	bank1 = bank;
-	regNo1 = reg;
-	data1 = data;
-	SND_fm_write_data2(); //bank, reg, data);
-//	SND_fm_write_save_data(bank, reg, data);
+
+//	rd0 = bank;
+//	rd1 = reg;
+//	rd2 = data;
+
+	rd0 = bank * 256;
+	rd1 = reg * 256 | data;
+
+	asm volatile(
+		"movb	$0x11,%%ah\n"
+		"call	sound_bios1\n"
+
+		"movzbl	%%al,%0\n"
+
+		:"=r"(rd3)	/* 値が返るレジスタ変数 */
+		:"r"(rd0),"r"(rd1)//,"r"(rd2)	/* 引数として使われるレジスタ変数 */
+//		:"%edx","%ebx"		/* 破壊されるレジスタ */
+	);
+
+	return rd3;
 }
+
+
 #else
 void set_fm(unsigned char bank, unsigned char reg, unsigned char data)
 {

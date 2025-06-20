@@ -917,10 +917,10 @@ void move_teki(void)
 //					if(tmp_yy > ((TK_OFS_Y - MY_OFS_Y - 8) << SHIFT_NUM)){
 				if((tmp_xx = myshot[j].x - tmp_x) < (16 << SHIFT_NUM)){
 //					if(tmp_xx > (-20 << SHIFT_NUM)){
-					if(tmp_xx > (-(4 << SHIFT_NUM))){
+					if(tmp_xx > (+(4 << SHIFT_NUM))){
 						if((tmp_yy = myshot[j].y - tmp_y) < (16 << SHIFT_NUM)){
 //							if(tmp_yy > (-20 << SHIFT_NUM)){
-							if(tmp_yy > (-(4 << SHIFT_NUM))){
+							if(tmp_yy > (+(4 << SHIFT_NUM))){
 
 								/* “Gƒ_ƒ[ƒW */
 								teki_pal[i] = REVPAL_NO;
@@ -1002,7 +1002,7 @@ void com_tkappend(int teki_no)
 
 	teki_pat[i] = teki_no;
 	tkcount[i] = 0;
-	tkshotcount[i] = SHOTCOUNT - 2;
+	tkshotcount[i] = 16;//SHOTCOUNT - 2;
 
 	teki_move[i] = command[schedule_ptr + 2];
 	teki[i].x = (((command[schedule_ptr + 3] - 7) << SHIFT_NUM) * 256 / 144 );
