@@ -725,6 +725,9 @@ end:
 
 /*dum2:	B_SUPER(1);*/
 
+	while(_iocs_b_keysns())
+		_iocs_b_keyinp();
+
 	exit(0);
 
 	return NOERROR;

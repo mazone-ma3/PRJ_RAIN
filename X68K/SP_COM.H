@@ -991,7 +991,7 @@ void com_tkappend(int teki_no)
 
 	teki_pat[i] = teki_no;
 	tkcount[i] = 0;
-	tkshotcount[i] = SHOTCOUNT - 2;
+	tkshotcount[i] = 16; //SHOTCOUNT - 2;
 
 	teki_move[i] = command[schedule_ptr + 2];
 	teki[i].x = (((command[schedule_ptr + 3] - 7) << SHIFT_NUM) * 256 / 144 );
