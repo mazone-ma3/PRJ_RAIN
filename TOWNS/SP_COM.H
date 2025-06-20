@@ -917,10 +917,10 @@ void move_teki(void)
 //					if(tmp_yy > ((TK_OFS_Y - MY_OFS_Y - 8) << SHIFT_NUM)){
 				if((tmp_xx = myshot[j].x - tmp_x) < (16 << SHIFT_NUM)){
 //					if(tmp_xx > (-20 << SHIFT_NUM)){
-					if(tmp_xx > (+(4 << SHIFT_NUM))){
+					if(tmp_xx > (-(4 << SHIFT_NUM))){
 						if((tmp_yy = myshot[j].y - tmp_y) < (16 << SHIFT_NUM)){
 //							if(tmp_yy > (-20 << SHIFT_NUM)){
-							if(tmp_yy > (+(4 << SHIFT_NUM))){
+							if(tmp_yy > (-(4 << SHIFT_NUM))){
 
 								/* “Gƒ_ƒ[ƒW */
 								teki_pal[i] = REVPAL_NO;
