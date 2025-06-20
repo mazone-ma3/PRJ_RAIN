@@ -105,7 +105,7 @@ void put_strings(int scr, int x, int y,  char *str, char pal)
 //			chr = 0x40;
 //		DEF_SP_SINGLE(spr_count, (x + (i++)) * 8 + 16, y * 8 + 16, (chr - '0' + CHR_TOP + 256), CHRPAL_NO, 0);
 		if((chr >= 0x30)){ // && (chr <= 0x5f)){
-			chr_data[spr_count].x = ((x+2) + (i)) * 8 + SPR_OFS_X; \
+			chr_data[spr_count].x = (x + i) * 8 + SPR_OFS_X * 0; \
 			chr_data[spr_count].y = (y) * 8 + SPR_OFS_Y * 0 + 2; \
 			chr_data[spr_count].pat_num = (chr - '0' + CHR_TOP); \
 			chr_data[spr_count].atr = (CHRPAL_NO + 256) | 0x8000; \
@@ -395,7 +395,7 @@ void set_object(void)
 	}
 
 	for(i = 0; i < 16; ++i)
-		DEF_SP_SINGLE(spr_count, (i * 16 - SPR_OFS_X) << SHIFT_NUM, (18 * 8 - SPR_OFS_Y) << SHIFT_NUM, 	IMG_SET(0, 3),  CHRPAL_NO, 0);
+		DEF_SP_SINGLE(spr_count, (i * 16 - SPR_OFS_X) << SHIFT_NUM, (18 * 8 - SPR_OFS_Y) << SHIFT_NUM, 	IMG_SET(8, 0),  CHRPAL_NO, 0);
 }
 
 /* ƒQ|ƒ€‚Ìƒ‹|ƒv */
@@ -624,7 +624,7 @@ short game_loop(void){
 	move_tekishot();
 
 	for(i = 0; i < 16; ++i)
-		DEF_SP_SINGLE(spr_count, (i * 16 - SPR_OFS_X) << SHIFT_NUM, (18 * 8 - SPR_OFS_Y) << SHIFT_NUM, 	IMG_SET(0, 3),  CHRPAL_NO, 0);
+		DEF_SP_SINGLE(spr_count, (i * 16 - SPR_OFS_X) << SHIFT_NUM, (18 * 8 - SPR_OFS_Y) << SHIFT_NUM, 	IMG_SET(8, 0),  CHRPAL_NO, 0);
 
 	return NOERROR;
 }

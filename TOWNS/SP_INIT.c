@@ -202,9 +202,10 @@ void set_constrast(int value, unsigned char org_pal[16][3], int pal_no)
 				pal[k] = org_pal[j][k] * (15 + value) / 15;
 			else
 				pal[k] = org_pal[j][k];
-			if(pal[k] < 0)
-				pal[k] = 0;
-			else if(pal[k] > 15)
+//			if(pal[k] < 0)
+//				pal[k] = 0;
+//			else 
+			if(pal[k] > 15)
 				pal[k] = 15;
 		}
 		pal_set(pal_no, j, pal[0], pal[1], pal[2]);
@@ -404,7 +405,7 @@ int	main(int argc,char **argv){
 /* 	spload("CORECRA.SP", 0x4000); */
 
 //	spram = 0x4000;
-	msxspconv("RAINCHR4.SC5", SPRPARTS); //PCGPARTS / 4, 256 - PCGPARTS / 4);
+	msxspconv("RAINCHR5.SC5", SPRPARTS); //PCGPARTS / 4, 256 - PCGPARTS / 4);
 //	sp68_load("CORECRA.SP", SPRPARTS);
 //	pal68_load("CORECRA.PAL");
 /*	spsave("CORECRA.PTN", 0x4000);*/
