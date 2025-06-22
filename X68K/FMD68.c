@@ -134,10 +134,17 @@ void stop(void);
 
 unsigned char count = 0;
 
+//void  __attribute__((interrupt))int_fm(void)
+//{
+//}
+
 void  __attribute__((interrupt))int_fm(void)
 {
 	unsigned char i, j, no, ch;
 	unsigned char data;
+
+	/* 割り込み on */
+	asm volatile("andi.w	#0x0f8ff,%sr\n");
 
 	set_fm(0x14, 0x2a);
 
@@ -228,7 +235,8 @@ playend:
 
 		ENDFRG = 0;
 		if(!LOOPTIME)
-			return;			/* 無限ループ */
+			goto playend2;
+//			return;			/* 無限ループ */
 		if(--LOOPTIME){
 			goto playloop;	/* ループ回数が0以外ならループ */
 		}
@@ -236,14 +244,67 @@ playend:
 		stop();
 	}
 	ENDFRG = 0;
+playend2:
+//	asm volatile("andi.w	#0x0f8ff,%sr\n");
 }
+
+static volatile uint8_t s_mfpBackup[0x18] = {
+	 0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,  0, 0, 0, 0,
+};
+static volatile uint32_t s_vector118Backup = 0;
+static volatile uint32_t s_uspBackup = 0;
 
 int init_sndint(void)
 {
 	int ret = 0;
 	/* 割り込み off */
 	asm volatile("ori.w	#0x0700,%sr\n");
+
+#ifdef DEBUG
 	ret = _iocs_opmintst(int_fm);
+
+	asm volatile (
+		"AER		= 0x003\n"
+		"IERA		= 0x007\n"
+		"IERB		= 0x009\n"
+		"ISRA		= 0x00F\n"
+		"ISRB		= 0x011\n"
+		"IMRA		= 0x013\n"
+
+		"IMRB		= 0x015\n"
+
+//		"	lea.l	int_vsync,%a2\n"
+
+		/* MFP のバックアップを取る */
+		"	movea.l	#0x0e88000,%a0\n"			/* a0.l = MFPアドレス */
+//		"	lea.l	s_mfpBackup(%pc),%a1\n"		/* a1.l = MFP保存先アドレス */
+		"	lea.l	s_mfpBackup,%a1\n"		/* a1.l = MFP保存先アドレス */
+		"	move.b	AER(%a0),AER(%a1)\n"		/*  AER 保存 */
+//		"	move.b	IERB(%a0),IERB(%a1)\n"		/* IERB 保存 */
+		"	move.b	IMRB(%a0),IMRB(%a1)\n"		/* IMRB 保存 */
+//		"	move.b	IMRA(%a0),IMRA(%a1)\n"		/* IMRA 保存 */
+
+//		"	move.l	#0x118,s_vector118Backup\n"	/* 変更前の V-disp ベクタ */
+
+		/* 割り込み設定 */
+//		"	move.l	%a2,0x118\n"				/* ベクタ書換え */
+//		"	bclr.b	#4,AER(%a0)\n"				/* 帰線期間と同時に割り込む */
+//		"	bset.b	#6,IMRB(%a0)\n"				/* マスクをはがす */
+//		"	bset.b	#6,IERB(%a0)\n"				/* 割り込み許可 */
+
+		"	bclr.b	#3,IMRB(%a0)\n"				/* マスクをはがす */
+//		"	bset.b	#3,IMRA(%a0)\n"				/* マスクをはがす */
+
+//		:"=d"(rd0)
+//		:"d"(rd0),"d"(rd1),"a"(ra0),"a"(ra1),"a"(ra2) //,"r"(rpc)
+	);
+
+#else
+//	ret = _iocs_vdispst (int_vsync, 0, 0*256+1);
+	ret = _iocs_opmintst(int_fm);
+#endif
+
+
 	/* 割り込み on */
 	asm volatile("andi.w	#0x0f8ff,%sr\n");
 	return ret;
@@ -252,7 +313,64 @@ int init_sndint(void)
 void reset_sndint(void)
 {
 	asm volatile("ori.w	#0x0700,%sr\n");
+
+#ifdef DEBUG
 	_iocs_opmintst (0);
+
+	asm volatile(
+		"AER		= 0x003\n"
+		"IERA		= 0x007\n"
+		"IERB		= 0x009\n"
+		"ISRA		= 0x00F\n"
+		"ISRB		= 0x011\n"
+		"IMRA		= 0x013\n"
+		"IMRB		= 0x015\n"
+
+		/* MFP の設定を復帰 */
+		"	movea.l	#0x0e88000,%a0\n"					/* a0.l = MFPアドレス */
+//		"	lea.l	s_mfpBackup(%pc),%a1\n"			/* a1.l = MFPを保存しておいたアドレス */
+		"	lea.l	s_mfpBackup,%a1\n"			/* a1.l = MFPを保存しておいたアドレス */
+
+//		"	move.b	AER(%a1),%d0\n"
+//		"	andi.b	#%%0101_0000,%d0\n"
+//		"	andi.b	#0x50,%d0\n"
+//		"	andi.b	#%%1010_1111,AER(%a0)\n"
+//		"	andi.b	#0xaf,AER(%a0)\n"
+//		"	or.b	%d0,AER(%a0)\n"					/* AER bit4&6 復帰 */
+
+//		"	move.b	IERB(%a1),%d0\n"
+//		"	andi.b	#%%0100_0000,%d0\n"
+//		"	andi.b	#0x40,%d0\n"
+//		"	andi.b	#%%1011_1111,IERB(%a0)\n"
+//		"	andi.b	#0xbf,IERB(%a0)\n"
+//		"	or.b	%d0,IERB(%a0)\n"					/* IERB bit6 復帰 */
+
+//		"	move.b	IMRA(%a1),%d0\n"
+//		"	andi.b	#0x08,%d0\n"
+//		"	andi.b	#0xf7,IMRA(%a0)\n"
+//		"	or.b	%d0,IMRA(%a0)\n"					/* IMRA bit3 復帰 */
+
+		"	move.b	IMRB(%a1),%d0\n"
+		"	andi.b	#0x08,%d0\n"
+		"	andi.b	#0xf7,IMRB(%a0)\n"
+		"	or.b	%d0,IMRB(%a0)\n"					/* IMRB bit3 復帰 */
+
+//		"	move.b	IMRB(%a1),%d0\n"
+//		"	andi.b	#%%0100_0000,%d0\n"
+//		"	andi.b	#0x40,%d0\n"
+//		"	andi.b	#%%1011_1111,IMRB(%a0)\n"
+//		"	andi.b	#0xbf,IMRB(%a0)\n"
+//		"	or.b	%d0,IMRB(%a0)\n"					/* IMRB bit6 復帰 */
+
+		/* V-DISP 割り込み復帰 */
+//		"	move.l	s_vector118Backup(%pc),0x118\n"
+//		"	move.l	s_vector118Backup,0x118\n"
+//		:"=d"(rd0)
+//		:"d"(rd0),"d"(rd1),"a"(ra0),"a"(ra1)
+	);
+#else
+	_iocs_opmintst (0);
+#endif
 	asm volatile("andi.w	#0x0f8ff,%sr\n");
 }
 
@@ -263,7 +381,6 @@ void stop(void)
 	for(i = 0; i < PARTSUU; ++i){
 		set_fm(0x08, 0x00 | key[i]);	/* off */
 	}
-	reset_sndint();
 }
 /*
 int	main(int argc,char **argv)
@@ -338,6 +455,7 @@ void play_fmdbgm(void)
 void stop_fmdbgm(void)
 {
 	stop();
+	reset_sndint();
 
 //	exit(0);
 }

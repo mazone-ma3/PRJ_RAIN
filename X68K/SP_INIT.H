@@ -16,6 +16,8 @@ extern unsigned char org_pal[16][3];
 
 #define SND_BUFFSIZE 30000
 
+extern unsigned char bg_mode;
+
 extern char SNDBUFF[4][SND_BUFFSIZE];
 extern long pcmsize[4]; 
 extern long mcd_status;

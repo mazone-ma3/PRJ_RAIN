@@ -640,8 +640,11 @@ void bg_roll(void)
 		scrl += 512 - (scrl_spd >> SCRL_SFT);
 //		scrl--;
 		scrl %= 512;
-		*scroll_x = scrl;
-		*scroll_y = scrl;
+
+		if(bg_mode){
+			*scroll_x = scrl;
+			*scroll_y = scrl;
+		}
 
 //		return;
 
@@ -939,6 +942,8 @@ void set_sprite(void)
 
 #ifndef XSP
 
+extern void VSYNC_handler(void);
+
 //void 
 void  __attribute__((interrupt)) int_vsync(void)
 {
@@ -947,8 +952,12 @@ void  __attribute__((interrupt)) int_vsync(void)
 //	);
 //	++score;
 //	scrdspflag =TRUE;
+	/* äÑÇËçûÇ› on */
+	asm volatile("andi.w	#0x0f8ff,%sr\n");
 
 	vsync_flag = 1;
+
+	VSYNC_handler();
 
 	if(spr_flag){
 		spr_flag = 0;

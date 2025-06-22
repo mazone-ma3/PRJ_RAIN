@@ -1,4 +1,4 @@
-# SP_RUN.X makefile for X680x0 GCC (elf2x68k) with XSP
+# RAIN.X makefile for X680x0 GCC (elf2x68k) (XSPëIëéÆ)
 
 #É}ÉNÉç
 CC = m68k-xelf-gcc
@@ -15,16 +15,20 @@ LINKOPTS = -Ttext=0x6800 -s
 .c.o:
 	$(CC) $(CFLAGS) -c $<
 
+.SUFFIXES: .o .s
+.s.o:
+	m68k-xelf-as -o $*.o $*.s
+
 #ê∂ê¨éËèá
 
 all:RAIN.X
 
-OBJFILES = SP_INIT.o SUBFUNC.o SP_MAIN.o SP_LD.o PLAY.o FONT68.o FMD68.o
+OBJFILES = SP_INIT.o SUBFUNC.o SP_MAIN.o SP_LD.o PLAY.o FONT68.o FMD68.o RASTER.o
 
 #XSPLIBFILES = xsp2lib.o pcm8afnc.o
 
 RAIN.X : $(OBJFILES)
-	$(CC) $(LINKOPTS) -o RAIN.X $(OBJFILES) $(XSPLIBFILES)
+	$(CC) $(LINKOPTS) -o RAIN.X $(OBJFILES) $(XSPLIBFILES) -lm
 # $(CFLAGS) $(LINKOPTS)
 
 SP_INIT.o : SP_INIT.c SP.h SP_LD.h PLAY.h common.h FMD68.h
@@ -40,3 +44,5 @@ SP_MAIN.o : SP_MAIN.c SP.h SPR_DEF.h SP_COM.h FONT68.h common.h SP_ENE.h SP_SHT.
 FONT68.o : FONT68.c FONT68.h
 
 FMD68,o : FMD68.c FMD68.h key.h keyx68.h tone.h
+
+RASTER.o : RASTER.s

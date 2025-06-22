@@ -242,7 +242,7 @@ short title_load2(char *loadfil)
 	unsigned char msxcolor[8];
 
 	if ((stream[0] = fopen( loadfil, "rb")) == NULL) {
-		printf("Can\'t open file %s.", loadfil);
+//		printf("Can\'t open file %s.", loadfil);
 
 		fclose(stream[0]);
 		return 1;
@@ -267,7 +267,8 @@ short title_load2(char *loadfil)
 
 			x68color[0] = msxcolor[0];
 			x68color[1] = msxcolor[1];
-			vram_adr = (unsigned short *)0xc80000 + (k + l) * 2;
+//			vram_adr = (unsigned short *)0xc80000 + (k + l) * 2;
+			vram_adr = (unsigned short *)0xc00000 + (k + l) * 2;
 			*vram_adr = x68color[0];
 			vram_adr++;
 			*vram_adr = x68color[1];

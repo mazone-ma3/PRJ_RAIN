@@ -10,12 +10,19 @@
 
 #include <x68k/dos.h>
 
+#include <math.h>
+
 #ifdef XSP
 
 #include "XSP2lib.H"
 #include "PCM8Afnc.H"
 
 #endif
+
+extern void r_start(void);
+extern void HSYNC_handler(void);
+extern void VSYNC_handler(void);
+extern void RASTER_handler(void);
 
 //#define DEBUG
 
@@ -33,6 +40,9 @@
 #define SCREEN2 0
 
 #include "fmd68.h"
+
+short sin_table[512];
+unsigned char bg_mode = 0;
 
 char *mcd_filename, *pcm_filename;
 long mcd_status = 0;
@@ -312,8 +322,15 @@ int init_int(void)
 {
 	int ret = 0;
 
+	r_start();
+
 	/* 割り込み off */
 	asm volatile("	ori.w	#0x0700,%sr\n");
+
+	if(!bg_mode){
+		ret = _iocs_crtcras(RASTER_handler, 0);
+//		ret = _iocs_hsyncst(HSYNC_handler);
+	}
 
 #ifdef DEBUG
 
@@ -336,6 +353,9 @@ int init_int(void)
 		"	move.b	AER(%a0),AER(%a1)\n"		/*  AER 保存 */
 		"	move.b	IERB(%a0),IERB(%a1)\n"		/* IERB 保存 */
 		"	move.b	IMRB(%a0),IMRB(%a1)\n"		/* IMRB 保存 */
+
+		"	move.b	IMRA(%a0),IMRA(%a1)\n"		/* IMRA 保存 */
+
 		"	move.l	#0x118,s_vector118Backup\n"	/* 変更前の V-disp ベクタ */
 
 		/* V-DISP 割り込み設定 */
@@ -344,6 +364,8 @@ int init_int(void)
 		"	bset.b	#6,IMRB(%a0)\n"				/* マスクをはがす */
 		"	bset.b	#6,IERB(%a0)\n"				/* 割り込み許可 */
 
+		"	bset.b	#7,IMRA(%a0)\n"				/* マスクをはがす */
+
 //		:"=d"(rd0)
 //		:"d"(rd0),"d"(rd1),"a"(ra0),"a"(ra1),"a"(ra2) //,"r"(rpc)
 	);
@@ -351,6 +373,9 @@ int init_int(void)
 #else
 	ret = _iocs_vdispst (int_vsync, 0, 0*256+1);
 #endif
+
+//	ret = _iocs_hdispst (HSYNC_handler);
+
 	/* 割り込み on */
 	asm volatile("	andi.w	#0xf8ff,%sr\n");
 
@@ -391,12 +416,24 @@ asm volatile("	ori.w	#0x0700,%sr\n");
 		"	andi.b	#0xbf,IERB(%a0)\n"
 		"	or.b	%d0,IERB(%a0)\n"					/* IERB bit6 復帰 */
 
+
+//		"	move.b	IMRB(%a1),%d0\n"
+//		"	andi.b	#0x08,%d0\n"
+//		"	andi.b	#0xf7,IMRB(%a0)\n"
+//		"	or.b	%d0,IMRB(%a0)\n"					/* IMRB bit3 復帰 */
+
 		"	move.b	IMRB(%a1),%d0\n"
 //		"	andi.b	#%%0100_0000,%d0\n"
 		"	andi.b	#0x40,%d0\n"
 //		"	andi.b	#%%1011_1111,IMRB(%a0)\n"
 		"	andi.b	#0xbf,IMRB(%a0)\n"
 		"	or.b	%d0,IMRB(%a0)\n"					/* IMRB bit6 復帰 */
+
+
+		"	move.b	IMRA(%a1),%d0\n"
+		"	andi.b	#0x80,%d0\n"
+		"	andi.b	#0x7f,IMRA(%a0)\n"
+		"	or.b	%d0,IMRA(%a0)\n"					/* IMRA bit7 復帰 */
 
 		/* V-DISP 割り込み復帰 */
 //		"	move.l	s_vector118Backup(%pc),0x118\n"
@@ -407,6 +444,11 @@ asm volatile("	ori.w	#0x0700,%sr\n");
 #else
 	_iocs_vdispst (0, 0, 0);
 #endif
+
+	if(!bg_mode){
+//		_iocs_hsyncst(0);
+		_iocs_crtcras(0, 0);
+	}
 
 asm volatile("	andi.w	#0xf8ff,%sr\n");
 }
@@ -440,20 +482,28 @@ int	main(int argc,char **argv){
 	unsigned char keycode;
 	unsigned char x,y;
 
+	char *title_filename;
+
 dum:	_iocs_b_super(0);		/* スーパーバイザモード 最適化防止にラベルを付ける */
 
 //	crtc = (short *)0xe80000;
 //	crtcr20 = (short *)0xe80028;
 
+	mcd_filename = "C_1_68.MDC";	/* 引数がなかった場合 */
+
 /* 実行時引数が設定されているかどうか調べる */
 /*	if (argc < 2 ) */
 	/*	return 1;*/
 	if (argv[1] == NULL)
-		mcd_filename = "C_1_68.MDC";	/* 引数がなかった場合 */
+		title_filename = "";
 	else
-		mcd_filename = argv[1];
+		title_filename = argv[1];
 
 	mcd_status = -1; //check_mcd();
+
+
+     for(i = 0; i <  256; ++i)
+         sin_table[i] = sin_table[i + 256] = (16 * sin(2 * M_PI * i / 256));
 
 	load_fmdbgm("dummy.ob2");
 
@@ -539,7 +589,12 @@ dum:	_iocs_b_super(0);		/* スーパーバイザモード 最適化防止にラベルを付ける */
 
 //	paint_text(0);
 	pal_allblack(CHRPAL_NO);
-//	title_load("TITLE.SC5", (128-48-16 + 256) / 8, 48-16, 16 * 4);
+	pal_allblack(BGPAL_NO);
+////	title_load("TITLE.SC5", (128-48-16 + 256) / 8, 48-16, 16 * 4);
+	if(bg_mode = title_load2(title_filename)){
+		vram =  (unsigned short *)0xc00000;
+		paint(0x0);
+	}
 //	pal_all(CHRPAL_NO, org_pal);
 
 	*bg_priority = 0x021a;	/*  BG0=OFF BG1=ON */
@@ -570,6 +625,7 @@ dum:	_iocs_b_super(0);		/* スーパーバイザモード 最適化防止にラベルを付ける */
 	if(init_int())
 		goto end;
 #endif
+	init_star();
 	do{
 		wait_vsync();
 		pal_allblack(CHRPAL_NO);
@@ -577,9 +633,8 @@ dum:	_iocs_b_super(0);		/* スーパーバイザモード 最適化防止にラベルを付ける */
 //		*scroll_x = 256; //(-(128-48-16) + 512) % 512;
 //		*scroll_y = 0; //(-48+16 + 512) % 512;
 		vram =  (unsigned short *)0xc00000;
-		paint(0x0);
+//		paint(0x0);
 		paint2(PCG_SPACE);
-		init_star();
 		wait_vsync();
 
 		hiscore_display();
