@@ -46,7 +46,8 @@ int sp68_load(char *fil, short offset, short sprparts)
 #else
 	short *ppcg_data = (short *)pcg_dat;
 
-	xsp_pcgmask_on(0, 64-1); //short start_no, short end_no);
+	xsp_pcgmask_on(0, 64/4-1); //short start_no, short end_no);
+	xsp_pcgmask_on(128, 256-1); //short start_no, short end_no);
 #endif
 	if ((sp_stream[0] = fopen( fil, "rb")) == NULL) {
 		fprintf(stderr, "Can\'t open file %s.", fil);
@@ -130,7 +131,8 @@ int msxspconv(char *loadfil, short offset, short sprparts)
 //#endif
 #ifdef XSP
 	short *ppcg_data = (short *)pcg_dat;
-	xsp_pcgmask_on(0, 128-1); //short start_no, short end_no);
+	xsp_pcgmask_on(0, 64/4-1); //short start_no, short end_no);
+	xsp_pcgmask_on(128, 256-1); //short start_no, short end_no);
 #endif
 
 

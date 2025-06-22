@@ -145,7 +145,7 @@ EXTERN CHR_PARA *pchr_data;
 	pchr_data->x = (X >> SHIFT_NUM) + SPR_OFS_X + 16; \
 	pchr_data->y = (Y >> SHIFT_NUM) + SPR_OFS_Y + 16; \
 	pchr_data->pat_num = PAT + (PAL << 8) + (ATR << 14); \
-	pchr_data->atr = 0x0011; \
+	pchr_data->atr = 0x0002; \
 	NO++; \
 }
 #else
@@ -154,7 +154,7 @@ EXTERN CHR_PARA *pchr_data;
 	pchr_data->x = (X >> SHIFT_NUM) + SPR_OFS_X + 16; \
 	pchr_data->y = (Y >> SHIFT_NUM) + SPR_OFS_Y + 16; \
 	pchr_data->pat_num = PAT & 0x3fff; \
-	pchr_data->atr = (PAL << 8) | (ATR << 14) | 0x10 | PRO | (PAT & 0xc000);\
+	pchr_data->atr = (PAL << 8) | (ATR << 14) | 0x20 | PRO | (PAT & 0xc000);\
 	NO++; \
 }
 #endif

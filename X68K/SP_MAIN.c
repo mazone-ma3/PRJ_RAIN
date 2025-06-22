@@ -49,8 +49,9 @@ void put_strings(int scr, int x, int y,  char *str, char pal)
 	char chr;
 	unsigned short i = 0;
 	unsigned short *bgram;
-	bgram = (unsigned short *)0xebe000;
-	bgram += (x * 2 + (y) * 0x80) / 2; /* BG1 */
+	bgram = (unsigned short *)0xebc000; /* BG0 */
+//	bgram = (unsigned short *)0xebe000; /* BG1 */
+	bgram += (x * 2 + (y) * 0x80) / 2;
 
 	while((chr = *(str++)) != '\0'){
 		if((chr < 0x30)) //|| (chr > 0x5f))
@@ -632,8 +633,8 @@ void init_star(void)
 void bg_roll(void)
 {
 	int i;
-	register unsigned short *scroll_x = (unsigned short *)0xe80018;	/* */
-	register unsigned short *scroll_y = (unsigned short *)0xe8001a;	/* */
+	register unsigned short *scroll_x = (unsigned short *)0xe80018;	/* GRP0 */
+	register unsigned short *scroll_y = (unsigned short *)0xe8001a;	/* GRP0 */
 
 /* スクロ－ルレジスタ制御 */
 
@@ -641,10 +642,10 @@ void bg_roll(void)
 //		scrl--;
 		scrl %= 512;
 
-		if(bg_mode){
+//		if(bg_mode){
 			*scroll_x = scrl;
 			*scroll_y = scrl;
-		}
+//		}
 
 //		return;
 

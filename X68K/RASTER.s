@@ -13,26 +13,23 @@ HSYNC_handler:
 
 RASTER_handler:
 
-	movem.l %d0-%d1/%a0, -(%sp) /* レジスタ退避 */
-#	movem.l %d1,-(%sp)
+#	movem.l %d0-%d1/%a0, -(%sp)	/* レジスタ退避 */
+	movem.l %d1/%a0,-(%sp)		/* レジスタ退避 */
 
 	move.w line_counter,%d1
 
 
 	move.l	(psintable),%a0
-#	move.w  (psintable, %d1), 0xe80018	/* sinテーブルから水平オフセット書き込み*/
-	move.w  (%a0, %d1.w), 0xe80018	/* sinテーブルからオフセット取得 */
+#	move.w  (%a0, %d1.w), 0xe80018	/* sinテーブルからオフセット取得(GRP0) */
+	move.w  (%a0, %d1.w), 0xe8001c	/* sinテーブルからオフセット取得(GRP1) */
 
-#	move.w  (psintable, %d1), %d0
-#	move.w	%d0,0xe80018	/* sinテーブルから水平オフセット書き込み*/
-#	move.w  (%d1, psintable), 0xe80018	/* sinテーブルから水平オフセット書き込み*/
-	move.w	%d1,0xe80012	/* 次のラスタ */
-	add.w	#4,%d1			/* ラインカウンタ進める */
-	and.w	#0x1ff,%d1
+	move.w	%d1,0xe80012		/* 次のラスタ */
+	addq.w	#4,%d1				/* ラインカウンタ進める */
+	and.w	#0x1ff,%d1			/* 512まで */
 	move.w  %d1,line_counter
 
-#	movem.l (%sp)+,%d1
-	movem.l (%sp)+, %d0-%d1/%a0 /* レジスタ復帰 */
+	movem.l (%sp)+,%d1/%a0		/* レジスタ復帰 */
+#	movem.l (%sp)+, %d0-%d1/%a0	/* レジスタ復帰 */
 	rte
 
 	/* VSYNC割り込みハンドラ */
@@ -45,10 +42,7 @@ r_start:
 	lea	 sin_table, %a0
 	move.l  table_offset, %d0
 	addq.l  #2, %d0			/* テーブルを2バイト進める（アニメーション） */
-	cmp.l   #512, %d0
-	bne.s   vsync_no_reset
-	clr.l   %d0				/* テーブル終端ならリセット */
-vsync_no_reset:
+	and.l	#0x1ff,%d0		/* 512まで */
 	move.l  %d0, table_offset
 
 	add.l	%d0,%a0
@@ -64,6 +58,6 @@ line_counter:
 table_offset:
 	.long 0					/* sinテーブルのオフセット */
 psintable:
-	.long 0
+	.long 0					/* sinテーブルへのポインタ */
 #raster_line:
 #	.word 0

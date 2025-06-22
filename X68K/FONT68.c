@@ -232,7 +232,7 @@ short title_load(char *loadfil, short x, short y, short msxline)
 	return 0;
 }
 
-short title_load2(char *loadfil)
+short title_load2(char *loadfil, unsigned short *vram_offset)
 {
 	long i, count, count2;
 	int k=0, l=0, m=0;
@@ -267,8 +267,10 @@ short title_load2(char *loadfil)
 
 			x68color[0] = msxcolor[0];
 			x68color[1] = msxcolor[1];
-//			vram_adr = (unsigned short *)0xc80000 + (k + l) * 2;
-			vram_adr = (unsigned short *)0xc00000 + (k + l) * 2;
+//			vram_adr = (unsigned short *)0xc00000 + (k + l) * 2; /* GRP0 */
+//			vram_adr = (unsigned short *)0xc80000 + (k + l) * 2; /* GRP1 */
+
+			vram_adr = vram_offset + (k + l) * 2;
 			*vram_adr = x68color[0];
 			vram_adr++;
 			*vram_adr = x68color[1];

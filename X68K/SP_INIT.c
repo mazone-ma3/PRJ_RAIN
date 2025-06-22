@@ -236,7 +236,7 @@ void paint_text(unsigned short color)
 	}
 }
 
-void paint(unsigned short color)
+void paint_grp(unsigned short color)
 {
 	unsigned short i, j;
 
@@ -247,7 +247,7 @@ void paint(unsigned short color)
 	}
 }
 
-void paint2(unsigned short color)
+void paint_bg1(unsigned short color)
 {
 	unsigned short i, j;
 	unsigned short *bgram = (unsigned short *)0xebe000; /* BG1 */
@@ -258,11 +258,11 @@ void paint2(unsigned short color)
 	}
 }
 
-void paint3(unsigned short color)
+void paint_bg0(unsigned short color)
 {
 	unsigned short i, j;
-	unsigned short *bgram = (unsigned short *)0xebe000; /* BG1 */
-	for(j = 1; j < (256 / 8); j++){
+	unsigned short *bgram = (unsigned short *)0xebc000; /* BG0 */
+	for(j = 0; j < (256 / 8); j++){
 		for(i = 0; i < 32; i++){
 			*(bgram + (i * 2 + j * 0x80) / 2) = color;
 		}
@@ -270,14 +270,14 @@ void paint3(unsigned short color)
 }
 
 /*テキスト画面及びグラフィック画面の消去*/
-void clear(short type)
+/*void clear(short type)
 {
 	if(type & 1)
-		paint(0x0);
+		paint_grp(0x0);
 
 	if(type & 2)
 		printf("\x1b*");
-}
+}*/
 
 char SNDBUFF[4][SND_BUFFSIZE];
 long pcmsize[4]; 
@@ -502,8 +502,8 @@ dum:	_iocs_b_super(0);		/* スーパーバイザモード 最適化防止にラベルを付ける */
 	mcd_status = -1; //check_mcd();
 
 
-     for(i = 0; i <  256; ++i)
-         sin_table[i] = sin_table[i + 256] = (16 * sin(2 * M_PI * i / 256));
+	for(i = 0; i <  256; ++i)
+		sin_table[i] = sin_table[i + 256] = (16 * sin(2 * M_PI * i / 256));
 
 	load_fmdbgm("dummy.ob2");
 
@@ -548,12 +548,19 @@ dum:	_iocs_b_super(0);		/* スーパーバイザモード 最適化防止にラベルを付ける */
 //		}
 //	}
 
-	bgram = (unsigned short *)0xebe000; /* BG1 */
-	for(j = 0; j < 32; j++){
-		for(i = 0; i < 32; i++){
-			*(bgram + (i * 2 + j * 0x80) / 2) = 0x0a; //(i + j * 32) % 256;
-		}
-	}
+//	bgram = (unsigned short *)0xebe000; /* BG1 */
+//	for(j = 0; j < 32; j++){
+//		for(i = 0; i < 32; i++){
+//			*(bgram + (i * 2 + j * 0x80) / 2) = 0x0a; //(i + j * 32) % 256;
+//		}
+//	}
+
+//	bgram = (unsigned short *)0xebc000; /* BG0 */
+//	for(j = 0; j < 32; j++){
+//		for(i = 0; i < 32; i++){
+//			*(bgram + (i * 2 + j * 0x80) / 2) = 0x0a; //(i + j * 32) % 256;
+//		}
+//	}
 
 //	for(j = 0; j < 8; j++){
 //		for(i = 0; i < 32; i++){
@@ -591,15 +598,18 @@ dum:	_iocs_b_super(0);		/* スーパーバイザモード 最適化防止にラベルを付ける */
 	pal_allblack(CHRPAL_NO);
 	pal_allblack(BGPAL_NO);
 ////	title_load("TITLE.SC5", (128-48-16 + 256) / 8, 48-16, 16 * 4);
-	if(bg_mode = title_load2(title_filename)){
-		vram =  (unsigned short *)0xc00000;
-		paint(0x0);
+	if(bg_mode = title_load2(title_filename, vram = (unsigned short *)0xc80000)){
+//		vram =  (unsigned short *)0xc00000;
+		paint_grp(0x0);	/* GRP1 */
 	}
 //	pal_all(CHRPAL_NO, org_pal);
 
-	*bg_priority = 0x021a;	/*  BG0=OFF BG1=ON */
-//	*grp_priority = 0x1ce4;
-	*grp_priority = 0x12e1;
+//	(BG0 > BG1)
+//	*bg_priority = 0x021a;	/*  BG0=OFF BG1=ON BG0=BG1 BG1=BG0 */
+	*bg_priority = 0x0219;	/*  BG0=ON BG1=ON BG0=BG0 BG1=BG1 */
+
+	*grp_priority = 0x12e1;	/* SP=1 TEXT=0 GRP=0 GRP0=1 GRP1=0 GRP2=2 GRP3=3 */
+//	*grp_priority = 0x18e4;	/* SP=1 TEXT=2 GRP=0 GRP0=0 GRP1=1 GRP2=2 GRP3=3 */
 
 	*scroll_bg1_x = 0;
 	*scroll_bg1_y = 0;
@@ -633,8 +643,9 @@ dum:	_iocs_b_super(0);		/* スーパーバイザモード 最適化防止にラベルを付ける */
 //		*scroll_x = 256; //(-(128-48-16) + 512) % 512;
 //		*scroll_y = 0; //(-48+16 + 512) % 512;
 		vram =  (unsigned short *)0xc00000;
-//		paint(0x0);
-		paint2(PCG_SPACE);
+//		paint_grp(0x0);
+		paint_bg1(PCG_SPACE);
+		paint_bg0(PCG_SPACE);
 		wait_vsync();
 
 		hiscore_display();
@@ -680,10 +691,10 @@ dum:	_iocs_b_super(0);		/* スーパーバイザモード 最適化防止にラベルを付ける */
 //			*scroll_x = 512 + 256;
 			pal_allblack(BGPAL_NO);
 			vram =  (unsigned short *)0xc00000;
-			paint(0x0);
-			paint2(PCG_SPACE);
+			paint_grp(0x0);
+			paint_bg1(PCG_SPACE);
 			opening_demo();
-			paint2(PCG_SPACE);
+			paint_bg1(PCG_SPACE);
 
 		}else if(errlv >= ERRLV1)
 */		{
@@ -700,7 +711,7 @@ dum:	_iocs_b_super(0);		/* スーパーバイザモード 最適化防止にラベルを付ける */
 		}
 
 
-//			paint3(PCG_SPACE);
+//			paint_bg0(PCG_SPACE);
 
 //			playbgm(errlv, debugmode);
 //			playbgm(0, debugmode);
