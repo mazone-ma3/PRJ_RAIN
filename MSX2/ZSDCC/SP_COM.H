@@ -495,9 +495,9 @@ __endasm;*/
 /******************************************************************************/
 
 /* 敵弾消去マクロ */
+//	tkshot_y[NO] = tmp_y = SPR_DEL_Y;\
 
 #define del_tkshot(NO) {\
-	tkshot_y[NO] = tmp_y = SPR_DEL_Y;\
 	tkshotnum--;\
 }
 
@@ -506,7 +506,7 @@ __endasm;*/
 unsigned char str_temp[11];
 
 //int i,j;
-unsigned char i,j, k;
+unsigned char i,j, k, j2;
 //int k;
 
 
@@ -885,7 +885,7 @@ void move_teki_bomb(void)//(unsigned char i)
 			if(uramode)
 				check_revshot();
 			teki_hp[i] = 0;
-			teki_y[i] = SPR_DEL_Y;
+//			teki_y[i] = SPR_DEL_Y;
 			break;
 	}
 
@@ -1316,7 +1316,7 @@ void move_teki(void)
 //			if(hit_check == TRUE){
 
 				/* 敵機と自機弾の接触判定 → 敵機、自機弾消滅 スコア増加 */
-				SEARCH_LIST(MAX_MYSHOT, j, myshot_next){
+				SEARCH_LIST2(MAX_MYSHOT, j, j2, myshot_next){
 //					if((tmp_yy = myshot[j].y - tmp_x) < (16 << SHIFT_NUM_Y)){
 //						if(tmp_yy > ((TK_OFS_Y - MY_OFS_Y - 8) << SHIFT_NUM_Y)){
 					if((tmp_xx = myshot_x[j] - tmp_x) < (16 << SHIFT_NUM)){
@@ -1331,7 +1331,7 @@ void move_teki(void)
 										teki_pal[i] = REVPAL_NO;
 										teki_dmgtime[i] = DMGTIME;
 
-										if(teki_hp[i] > 2)
+//										if(teki_hp[i] > 2)
 											--teki_hp[i];
 
 										if(uramode){
@@ -1342,8 +1342,11 @@ void move_teki(void)
 
 										/* ノーマル弾なら画面外に消去 */
 //										myshot_x[j] = SPR_DEL_X;
-										myshot_y[j] = SPR_DEL_Y; //0; //SPR_DEL_Y;	/* 0 */
+//										myshot_y[j] = SPR_DEL_Y; //0; //SPR_DEL_Y;	/* 0 */
 										/*myshot[j].yy = 0;*/
+
+										trgnum--;
+										DEL_LIST(MAX_MYSHOT, j, j2, myshot_next, myshot_free);
 
 										score += 10;		/* 敵の点数を足す */
 										scrdspflag = TRUE;
@@ -1386,7 +1389,7 @@ void move_teki(void)
 
 		/* 敵消滅 → 爆発パターンへ */
 		if(teki_hp[i] <= 0){
-			teki_y[i] = SPR_DEL_Y;
+//			teki_y[i] = SPR_DEL_Y;
 			DEL_LIST(MAX_TEKI, i, k, teki_next, teki_free);
 			--teki_num;
 		}

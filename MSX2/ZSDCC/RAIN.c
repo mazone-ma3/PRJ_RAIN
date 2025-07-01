@@ -1290,9 +1290,9 @@ short game_loop(void){
 //		/* é©ã@íeâÊñ äOè¡ãé */
 		if((tmp_x < (((SCREEN_MIN_X + SPR_OFS_X) << SHIFT_NUM) + 16))
 		|| (tmp_x > (((SCREEN_MAX_X - SPR_OFS_X) << SHIFT_NUM) + 16))){
-			tmp_y = SPR_DEL_Y;
-		}
-		if(tmp_y == SPR_DEL_Y){
+//			tmp_y = SPR_DEL_Y;
+//		}
+//		if(tmp_y == SPR_DEL_Y){
 			trgnum--;
 
 //			DEF_SP(tmp_x, tmp_y, myshot[i].pat_num,  CHRPAL_NO);
@@ -1595,23 +1595,44 @@ __endasm;
 //			if((pold_data->atr == pchr_data->atr))
 //				if((pold_data->pal == pchr_data->pal))
 //					continue;
-			pold_data->pat_num = pchr_data->pat_num;
-			pold_data->atr = pchr_data->atr;
+			pat_num = pold_data->pat_num = pchr_data->pat_num;
+			atr = pold_data->atr = pchr_data->atr;
 //			pold_data->pal = pchr_data->pal;
 //		if(color_flag[i]){
 //			pchr_data = &chr_data[i];
 //			color_flag[i] = 0;
-			pat_num = pchr_data->pat_num / 4;
-			atr = pchr_data->atr & 0xf0;
+//			pat_num = pchr_data->pat_num / 4;
+//			atr = pchr_data->atr & 0xf0;
 
-			if(!(pchr_data->atr & 0x0f)){
+			if((atr & 0x0f)){
+//				atr2 = 13 | atr;
+//				for(j = 0; j < 16; ++j){
+//					write_vram_data(13 | atr);
+				DI();
+				write_vram_adr(spr_page, 0x7600 - 512 + i * 16);
+//				EI();
+__asm
+	push	bc
+	ld	b,16
+	ld	a,(_VDP_writeadr)
+	ld	c,a
+	ld	a,(_atr)
+	or	13
+c_loop:
+	out	(c),a
+	djnz	c_loop
+	pop	bc
+__endasm;
+///				}
+				EI();
+			}else{
 //				for(j = 0; j < 16; ++j){
 //					write_vram_data(spr_col[pat_num][j] | atr);
 //					atr2 = spr_col[pat_num][j]; // | atr;
-					patr = (unsigned char *)&spr_col[pat_num][0]; // | atr;
-			DI();
-			write_vram_adr(spr_page, 0x7600 - 512 + i * 16);
-//			EI();
+					patr = (unsigned char *)&spr_col[pat_num/4][0]; // | atr;
+					DI();
+					write_vram_adr(spr_page, 0x7600 - 512 + i * 16);
+//					EI();
 __asm
 	push	bc
 	push	de
@@ -1621,6 +1642,7 @@ __asm
 	ld	c,a
 	ld	hl,(_patr)
 	ld	a,(_atr)
+	and	a,0xf0
 	ld	d,a
 palloop:
 ;	ld	a,(_atr2)
@@ -1710,34 +1732,12 @@ palloop:
 	pop	de
 	pop	bc
 __endasm;
-				EI();
+					EI();
 //				}
-			}else{
-//				atr2 = 13 | atr;
-//				for(j = 0; j < 16; ++j){
-//					write_vram_data(13 | atr);
-				DI();
-				write_vram_adr(spr_page, 0x7600 - 512 + i * 16);
-//				EI();
-__asm
-	push	bc
-	ld	b,16
-	ld	a,(_VDP_writeadr)
-	ld	c,a
-	ld	a,(_atr)
-	or	13
-c_loop:
-	out	(c),a
-	djnz	c_loop
-	pop	bc
-__endasm;
-///				}
-				EI();
 			}
 //			write_vram_adr(spr_page, 0x7600  + (i) * 4);
 		}
 //		PUT_SP(pchr_data->x, pchr_data->y, pchr_data->pat_num, 0);
-
 	}
 
 	DI();
@@ -1970,6 +1970,10 @@ void main(void)
 				break;
 			}
 		}while(!(keycode & (KEY_A | KEY_START)));
+		do{
+			keyscan();
+		}while(keycode & (KEY_A | KEY_START));
+
 		put_strings(SCREEN2, 9, 14, "             ", CHRPAL_NO);
 		put_strings(SCREEN2, 9, 12, "             ", CHRPAL_NO);
 		put_strings(SCREEN2, 9, 17, "             ", CHRPAL_NO);
