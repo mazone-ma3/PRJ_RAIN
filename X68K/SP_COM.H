@@ -167,9 +167,9 @@ COLIGION *p_coli;
 /******************************************************************************/
 
 /* 敵弾消去マクロ */
+//	tkshot[NO].y = tmp_y = SPR_DEL_Y;\
 
 #define del_tkshot(NO) {\
-	tkshot[NO].y = tmp_y = SPR_DEL_Y;\
 	tkshotnum--;\
 }
 
@@ -506,7 +506,7 @@ void move_teki_bomb(int i)
 			if(uramode)
 				check_revshot();
 			teki_hp[i] = 0;
-			teki[i].y = SPR_DEL_Y;
+//			teki[i].y = SPR_DEL_Y;
 			break;
 	}
 
@@ -881,7 +881,7 @@ SUBFUNC moveteki_tbl[MOVETEKIMAX] =
 /************/
 void move_teki(void)
 {
-	int i, j, k, l;
+	int i, j, k, l, j2;
 
 	SEARCH_LIST2(MAX_TEKI, i, k, teki_next){
 
@@ -901,7 +901,7 @@ void move_teki(void)
 		if(teki_hp[i] > 2){
 
 			/* 敵機と自機弾の接触判定 → 敵機、自機弾消滅 スコア増加 */
-			SEARCH_LIST(MAX_MYSHOT, j, myshot_next){
+			SEARCH_LIST2(MAX_MYSHOT, j, j2, myshot_next){
 //				if((tmp_yy = myshot[j].y - tmp_x) < (16 << SHIFT_NUM)){
 //					if(tmp_yy > ((TK_OFS_Y - MY_OFS_Y - 8) << SHIFT_NUM)){
 				if((tmp_xx = myshot[j].x - tmp_x) < (16 << SHIFT_NUM)){
@@ -921,8 +921,10 @@ void move_teki(void)
 									shottome2(tekishot_dir(), PAT_TKSHOT1);
 
 								/* ノーマル弾なら画面外に消去 */
-								myshot[j].y = 0; /*SPR_DEL_Y;*/
+//								myshot[j].y = 0; /*SPR_DEL_Y;*/
 								/*myshot[j].yy = 0;*/
+								trgnum--;
+								DEL_LIST(MAX_MYSHOT, j, j2, myshot_next, myshot_free);
 
 								score += 10;		/* 敵の点数を足す */
 								scrdspflag = TRUE;
@@ -955,7 +957,7 @@ void move_teki(void)
 
 		/* 敵消滅 → 爆発パターンへ */
 		if(!teki_hp[i]){
-			teki[i].y = SPR_DEL_Y;
+//			teki[i].y = SPR_DEL_Y;
 			DEL_LIST(MAX_TEKI, i, k, teki_next, teki_free);
 			--teki_num;
 		}

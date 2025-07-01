@@ -68,7 +68,22 @@ short bload2(char *loadfil, unsigned short offset)
 void set_fm(unsigned char reg, unsigned char data)
 {
 #ifdef IOCS
-	_iocs_opmset(reg, data);
+	register long rd0 asm ("d0");
+	register long rd1 asm ("d1");
+	register long rd2 asm ("d2");
+
+	rd0 = 0x68;
+	rd1 = reg;
+	rd2 = data;
+
+asm volatile(
+	"trap	#15\n"
+	:"=d"(rd0)	/* 値が返るレジスタ変数 */
+	:"d"(rd0),"d"(rd1),"d"(rd2)	/* 引数として使われるレジスタ変数 */
+//	:"d0"		/* 破壊されるレジスタ */
+);
+
+//	_iocs_opmset(reg, data);
 #else
 	unsigned char a;
 

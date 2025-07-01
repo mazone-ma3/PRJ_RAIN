@@ -671,6 +671,11 @@ dum:	_iocs_b_super(0);		/* スーパーバイザモード 最適化防止にラベルを付ける */
 			wait_vsync();
 			bg_roll();
 		}while(!(keycode & (KEY_A | KEY_START)));
+		do{
+			wait_vsync();
+			bg_roll();
+			keycode = keyscan();
+		}while((keycode & (KEY_A | KEY_START)));
 		put_strings(SCREEN2, 9, 14, "             ", CHRPAL_NO);
 		put_strings(SCREEN2, 9, 12, "             ", CHRPAL_NO);
 		put_strings(SCREEN2, 9, 17, "             ", CHRPAL_NO);
