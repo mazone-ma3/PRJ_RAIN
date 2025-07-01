@@ -607,17 +607,17 @@ short game_loop(void){
 		/* é©ã@íeâÊñ äOè¡ãé */
 		if((tmp_x < ((SCREEN_MIN_X << SHIFT_NUM) + SPR_OFS_X + 16))
 		|| (tmp_x > (((SCREEN_MAX_X - SPR_OFS_X) << SHIFT_NUM) + 16))){
-			tmp_y = SPR_DEL_Y;
-		}
-		if(tmp_y == SPR_DEL_Y){
+//			tmp_y = SPR_DEL_Y;
+//		}
+//		if(tmp_y == SPR_DEL_Y){
 			trgnum--;
 
 			DEL_LIST(MAX_MYSHOT, i, j, myshot_next, myshot_free);
 		}else{
 			myshot[i].x = tmp_x;
 			myshot[i].y = tmp_y;
+			DEF_SP(spr_count, tmp_x, tmp_y, myshot[i].pat_num,  CHRPAL_NO);
 		}
-		DEF_SP(spr_count, tmp_x, tmp_y, myshot[i].pat_num,  CHRPAL_NO);
 	}
 
 	move_teki();

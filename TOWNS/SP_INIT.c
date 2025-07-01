@@ -427,7 +427,7 @@ int	main(int argc,char **argv){
 	init_vsync();
 
 	do{
-//		wait_vsync2();
+		wait_vsync2();
 		pal_allblack(BGPAL_NO);
 		pal_allblack(CHRPAL_NO);
 		paint(0x0);
@@ -457,11 +457,19 @@ int	main(int argc,char **argv){
 				errlv = SYSEXIT;
 				break;
 			}
+
 			wait_sprite();
 			set_sprite();
-//			wait_vsync2();
+			wait_vsync2();
 			bg_roll();
 		}while(!(keycode & (KEY_A | KEY_START)));
+		do{
+			wait_sprite();
+			set_sprite();
+			wait_vsync2();
+			bg_roll();
+			keycode = keyscan();
+		}while((keycode & (KEY_A | KEY_START)));
 
 //	goto end;
 
