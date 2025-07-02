@@ -1216,6 +1216,8 @@ short game_loop(void){
 		EI();
 */
 
+		pchr_data = chr_data;
+
 		X = *p_x;
 		Y = *p_y;
 		PAT = my_data_pat_num[i];
@@ -1536,6 +1538,8 @@ sprend:
 __endasm;
 }
 
+CHR_PARA4 *pold_data;
+
 void set_sprite(void)
 {
 	unsigned char i, j;
@@ -1583,9 +1587,10 @@ void set_sprite(void)
 
 //	write_vram_adr(spr_page, 0x7600);
 
+	pold_data = &old_data[spr_page][0];
+	pchr_data = &chr_data[0];
+
 	for(i = 0; i < tmp_spr_count; i++){
-		CHR_PARA4 *pold_data = &old_data[spr_page][i];
-		pchr_data = &chr_data[i];
 /*__asm
 	DI
 __endasm;
@@ -1738,6 +1743,10 @@ __endasm;
 //			write_vram_adr(spr_page, 0x7600  + (i) * 4);
 		}
 //		PUT_SP(pchr_data->x, pchr_data->y, pchr_data->pat_num, 0);
+
+		++pold_data;
+		++pchr_data;
+
 	}
 
 	DI();
@@ -1834,6 +1843,8 @@ void game_put(void)
 	write_vram_adr(spr_page, 0x7600);
 	EI();
 */
+	pchr_data = chr_data;
+
 	X = my_data_x[i];
 	Y = my_data_y[i] ;
 	PAT = my_data_pat_num[i];

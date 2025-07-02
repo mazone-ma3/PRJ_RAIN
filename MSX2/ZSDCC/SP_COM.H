@@ -177,7 +177,7 @@ unsigned char PAT, PAL;
 
 void DEF_SP_SINGLE(void) { //short X, short Y, unsigned char PAT, unsigned char PAL) __sdcccall(1) {
 	patno = PAT;
-	pchr_data = &chr_data[tmp_spr_count];
+//	pchr_data = &chr_data[tmp_spr_count];
 	xxx = ((X >> SHIFT_NUM) + SPR_OFS_X);
 	yyy = ((Y >> SHIFT_NUM_Y) + SPR_OFS_Y - 1);
 
@@ -261,11 +261,13 @@ __asm
 	ld	(hl),a
 defspend:
 __endasm;*/
+
+	++pchr_data;
 }
 
 void DEF_SP_DOUBLE(void) { //short X, short Y, unsigned char PAT, unsigned char PAL) __sdcccall(1) {
 	patno = PAT * 8;
-	pchr_data = &chr_data[tmp_spr_count];
+//	pchr_data = &chr_data[tmp_spr_count];
 	xxx = ((X >> SHIFT_NUM) + SPR_OFS_X);
 	yyy = ((Y >> SHIFT_NUM_Y) + SPR_OFS_Y - 1);
 
@@ -388,6 +390,8 @@ __asm
 	ld	(hl),a
 defspend2:
 __endasm;*/
+
+	pchr_data += 2;
 }
 
 #ifdef DEBUG2
