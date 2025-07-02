@@ -111,6 +111,8 @@ short msxload(char *loadfil, unsigned short offset)
 	return NOERROR;
 }
 
+unsigned char bgmmode = 0;
+
 char checkbgm(void) __sdcccall(1)
 {
 __asm
@@ -181,30 +183,30 @@ __endasm;
 
 void playbgm(void) __sdcccall(1)
 {
-	unsigned char a;
-	a = checkbgm();
-	if(!a)
+//	unsigned char a;
+//	a = checkbgm();
+	if(!bgmmode)
 		return;
-	if(a==1){
+	if(bgmmode == 1){
 __asm
 	call #0xbc00
 __endasm;
-	}else if(a==2){
+	}else if(bgmmode == 2){
 		play_bgm(0);
 	}
 }
 
 void stopbgm(void) __sdcccall(1)
 {
-	unsigned char a;
-	a = checkbgm();
-	if(!a)
+//	unsigned char a;
+//	a = checkbgm();
+	if(!bgmmode)
 		return;
-	if(a==1){
+	if(bgmmode == 1){
 __asm
 	call #0xbc03
 __endasm;
-	}else if(a==2){
+	}else if(bgmmode == 2){
 		play_bgm(-1);
 	}
 }
@@ -849,6 +851,9 @@ __asm
 	ld	b,a
 
 jiffyloop2:
+	ei
+	nop
+	di
 	ld	a,(#0xfc9e)
 	sub	a,b
 ;	cp	b
@@ -861,11 +866,13 @@ __endasm;
 	if((unsigned char)(*jiffy - old_jiffy2) >= 60){
 //	if(*jiffy >= 60){
 		old_jiffy2 = *jiffy;
+		EI();
 		put_numd((long)(total_count), 2);
 		put_strings(SCREEN2, 27, 22, str_temp, CHRPAL_NO);
 		total_count = 0;
 //		*jiffy = 0;
 	}
+	EI();
 #endif
 }
 
@@ -1326,7 +1333,7 @@ short game_loop(void){
 	move_tekishot();
 //	EI();
 
-#ifdef DEBUG
+#ifdef DEBUG_
 	/* スプライト数表示 */
 	if(old_count[spr_page] != tmp_spr_count){
 		put_numd((long)(tmp_spr_count), 2);
@@ -1924,7 +1931,7 @@ void main(void)
 	clicksw_old = *clicksw;
 	*clicksw = 0;
 
-	checkbgm();
+	bgmmode = checkbgm();
 
 	set_screenmode(5);
 	set_displaypage(0);
@@ -2049,6 +2056,8 @@ void main(void)
 			put_strings(SCREEN2, 8, 24, "LIFE", CHRPAL_NO);
 #ifdef DEBUG
 			put_strings(SCREEN2, 29, 22, "FPS", CHRPAL_NO);
+#endif
+#ifdef DEBUG_
 			put_strings(SCREEN2, 29, 24, "SPR", CHRPAL_NO);
 #endif
 			score_displayall();
@@ -2229,7 +2238,7 @@ end:
 			if(errlv == SYSEXIT)
 				break;
 			if(errlv != NOERROR){
-				switch(checkbgm()){
+				switch(bgmmode){ //checkbgm()){
 					case 1:
 __asm
 	call #0xbc06
