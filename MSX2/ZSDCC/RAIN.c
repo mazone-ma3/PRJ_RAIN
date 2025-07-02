@@ -5,6 +5,8 @@
 
 #define DEBUG
 
+//#define SINGLEMODE
+
 enum {
 	BGMMAX = 2,
 	SEMAX = 4
@@ -13,7 +15,13 @@ enum {
 void wait_vsync(void);
 void put_strings(unsigned char scr, unsigned char x, unsigned char y,  char *str, unsigned char pal);
 void put_numd(long j, unsigned char digit) __sdcccall(1);
+
+#ifdef SINGLEMODE
+unsigned char spr_page = 0;
+#else
 unsigned char spr_page = 1;
+#endif
+
 void write_vram_adr(unsigned char highadr, int lowadr) __sdcccall(1);
 
 void set_int(void);
@@ -1783,7 +1791,9 @@ spr_end:
 //	}else if(spr_flag == 0){	/* IDLE */
 //		spr_flag = 1;
 //		spr_next = spr_page;
+#ifndef SINGLEMODE
 		spr_page ^= 0x01;
+#endif
 //	}
 	EI();
 	sys_wait(1);
@@ -1827,7 +1837,9 @@ void spr_clear(void){
 //	spr_flag = 0;
 	set_spr_atr_adr(spr_page); //, SPR_ATR_ADR); /* color table : atr-512 (0x7400) */
 //	spr_next = spr_page;
+#ifndef SINGLEMODE
 	spr_page ^= 0x01;
+#endif
 	EI();
 }
 
@@ -2333,6 +2345,7 @@ __endasm;
 
 void set_int(void)
 {
+#ifndef SINGLEMODE
 __asm
 	DI
 ;	PUSH	IY
@@ -2372,10 +2385,12 @@ slotset:
 ;	POP	IY
 	EI
 __endasm;
+#endif
 }
 
 void reset_int(void)
 {
+#ifndef SINGLEMODE
 __asm
 	DI
 	LD	HL,INTWORK
@@ -2384,4 +2399,5 @@ __asm
 	LDIR
 	EI
 __endasm;
+#endif
 }

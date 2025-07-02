@@ -170,18 +170,18 @@ unsigned char old_count[2];
 COLIGION *p_coli;
 
 short xxx;
-unsigned char yyy, patno, spratr, sprpal_no;
+unsigned char yyy, sprpal_no; // spratr, patno,
 
 short X, Y;
 unsigned char PAT, PAL;
 
 void DEF_SP_SINGLE(void) { //short X, short Y, unsigned char PAT, unsigned char PAL) __sdcccall(1) {
-	patno = PAT;
+//	patno = PAT;
 //	pchr_data = &chr_data[tmp_spr_count];
 	xxx = ((X >> SHIFT_NUM) + SPR_OFS_X);
 	yyy = ((Y >> SHIFT_NUM_Y) + SPR_OFS_Y - 1);
 
-	spratr = PAL;
+//	spratr = PAL;
 /*	if((xxx >= 256) || (xxx <= -16)){
 		yyy = 212;
 	}
@@ -192,47 +192,57 @@ void DEF_SP_SINGLE(void) { //short X, short Y, unsigned char PAT, unsigned char 
 		spratr = 0x80 | PAL;
 	}*/
 __asm
+	ld	a,(_PAL)
+;	ld	(_spratr),a
+	ld	b,a
+
+	ld	a,(_yyy)
+	ld	c,a
+
+	ld	a,(_xxx+0)
+	ld	d,a
+
 	ld	a,(_xxx+1)
 	or	a
 	jr	z,spdefend2
 
 	cp	#0xff
 	jr	nz,spdef02
-	ld	a,(_xxx+0)
+	ld	a,d ;(_xxx+0)
 	cp	#0xf0
 	jr	nc,spdef12
 spdef02:
-	ld	a,212
-	ld	(_yyy),a
+:	ld	a,212
+;	ld	(_yyy),a
+	ld	c,212
 	jr	spdefend2
 spdef12:
-	ld	a,32
-	ld	b,a
-	ld	a,(_xxx+0)
-	add	a,b
-	ld	(_xxx+0),a
-	ld	a,(_spratr)
+;	ld	a,32
+;	ld	c,32
+	ld	a,d ;(_xxx+0)
+	add	a,32
+	ld	d,a ;(_xxx+0),a
+	ld	a,b ;(_spratr)
 	or	a,#0x80
-	ld	(_spratr),a
+	ld	b,a	;(_spratr),a
 spdefend2:
-__endasm;
 
-__asm
 	ld	hl,(_pchr_data)
-	ld	a,(_yyy)
-	ld	(hl),a
+;	ld	a,c ;(_yyy)
+	ld	(hl),c
 	inc	hl
-	ld	a,(_xxx)
-	ld	(hl),a
+;	ld	a,d ;(_xxx)
+	ld	(hl),d
 ;	inc	hl		; (*)
 ;	inc	de
 ;	ld	(hl),d
 	inc	hl
-	ld	a,(_patno)
+;	ld	a,(_patno)
+	ld	a,(_PAT)
 	ld	(hl),a
 	inc	hl
-	ld	a,(_spratr)
-	ld	(hl),a
+;	ld	a,b	;(_spratr)
+	ld	(hl),b
 	ld	hl,_tmp_spr_count
 	inc	(hl)
 __endasm;
@@ -266,12 +276,12 @@ __endasm;*/
 }
 
 void DEF_SP_DOUBLE(void) { //short X, short Y, unsigned char PAT, unsigned char PAL) __sdcccall(1) {
-	patno = PAT * 8;
+//	patno = PAT * 8;
 //	pchr_data = &chr_data[tmp_spr_count];
 	xxx = ((X >> SHIFT_NUM) + SPR_OFS_X);
 	yyy = ((Y >> SHIFT_NUM_Y) + SPR_OFS_Y - 1);
 
-	spratr = PAL;
+//	spratr = PAL;
 /*	if((xxx >= 256) || (xxx <= -16)){
 		yyy = 212;
 	}
@@ -282,37 +292,46 @@ void DEF_SP_DOUBLE(void) { //short X, short Y, unsigned char PAT, unsigned char 
 		spratr = 0x80 | PAL;
 	}*/
 __asm
+	ld	a,(_PAL)
+;	ld	(_spratr),a
+	ld	b,a
+
+	ld	a,(_yyy)
+	ld	c,a
+
+	ld	a,(_xxx+0)
+	ld	d,a
+
 	ld	a,(_xxx+1)
 	or	a
 	jr	z,spdefend
 
 	cp	#0xff
 	jr	nz,spdef0
-	ld	a,(_xxx+0)
+	ld	a,d
 	cp	#0xf0
 	jr	nc,spdef1
 spdef0:
 	ld	a,212
-	ld	(_yyy),a
+	ld	c,a ;(_yyy),a
 	jr	spdefend
 spdef1:
-	ld	a,32
-	ld	b,a
-	ld	a,(_xxx+0)
-	add	a,b
+;	ld	a,32
+;	ld	c,32
+	ld	a,d ;(_xxx+0)
+	add	a,32
 	ld	(_xxx+0),a
-	ld	a,(_spratr)
+	ld	a,b	;(_spratr)
 	or	a,#0x80
-	ld	(_spratr),a
+;	ld	(_spratr),a
+	ld	b,a
 spdefend:
-__endasm;
-__asm
 	ld	hl,4
 	ld	de,(_pchr_data)
 	add	hl,de
-	ld	a,(_yyy)
-	ld	(de),a
-	ld	(hl),a
+;	ld	a,c ;(_yyy)
+	ld	(de),c
+	ld	(hl),c
 	inc	hl
 	inc	de
 	ld	a,(_xxx)
@@ -322,16 +341,20 @@ __asm
 ;	inc	de		; (*)
 	inc	hl
 	inc	de
-	ld	a,(_patno)
+;	ld	a,(_patno)
+	ld	a,(_PAT)
+	add	a,a
+	add	a,a
+	add	a,a
 	ld	(de),a
-	ld	b,4
-	add	a,b
+;	ld	c,4
+	add	a,4
 	ld	(hl),a
 	inc	hl
 	inc	de
-	ld	a,(_spratr)
-	ld	(de),a
-	ld	(hl),a
+;	ld	a,b	;(_spratr)
+	ld	(de),b
+	ld	(hl),b
 
 	ld	hl,_tmp_spr_count
 	inc	(hl)
