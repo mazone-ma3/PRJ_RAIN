@@ -144,7 +144,8 @@ void score_display(void)
 
 void score_displayall(void)
 {
-	put_strings(SCREEN2, 8, 22, "SCORE", CHRPAL_NO);
+	if(score < hiscore)
+		put_strings(SCREEN2, 8, 22, "SCORE", CHRPAL_NO);
 	score_display();
 }
 
