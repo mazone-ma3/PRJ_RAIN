@@ -3,7 +3,7 @@
 #É}ÉNÉç
 CC= zcc
 
-CFLAGS = +msx -compiler sdcc --opt-code-speed
+CFLAGS = +msx -compiler sdcc --opt-code-speed --sdcccall0
 # --opt-code-size
 # --sdcccall0
 # -DNODLAY -lm
