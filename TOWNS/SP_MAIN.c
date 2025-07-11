@@ -132,20 +132,18 @@ void score_display(void)
 {
 	put_numd(score, 8);
 	put_strings(SCREEN2, 15, 22, str_temp, CHRPAL_NO);
-	if(score >= hiscore){
-		if((score % 10) == 0){
-			hiscore = score;
-			put_strings(SCREEN2, 8, 22, "HIGH", CHRPAL_NO);
-		}
+	if((score >= hiscore) && ((score % 10) == 0)){
+		hiscore = score;
+		put_strings(SCREEN2, 8, 22, "HIGH", CHRPAL_NO);
 	}
-//	else
-//		put_strings(SCREEN2, 28, 0, "  ", CHRPAL_NO);
+	else
+		put_strings(SCREEN2, 8, 22, "SCORE", CHRPAL_NO);
 }
 
 void score_displayall(void)
 {
-	if(score < hiscore)
-		put_strings(SCREEN2, 8, 22, "SCORE", CHRPAL_NO);
+//	if(score < hiscore)
+//		put_strings(SCREEN2, 8, 22, "SCORE", CHRPAL_NO);
 	score_display();
 }
 
