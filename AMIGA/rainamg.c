@@ -1,4 +1,4 @@
-/* rainamg.c By n@3 2025. */
+/* rainamg.c By m@3 2025. */
 
 #include <stdio.h>
 #include <hardware/custom.h>
