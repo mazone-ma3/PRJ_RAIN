@@ -68,7 +68,7 @@ unsigned short COPPERL[] = {
 	0xFFFF,0xFFFE, //End of Copper list
 };
 //	;;
-//	;;  Sprite data for spaceship sprite.  It appears on the screen at V=65 and H=128.
+//	;;  Sprite data
 //	;;
 unsigned short SPRITE[] = {
 	0x6D60,0x7200, //VSTART, HSTART, VSTOP
@@ -96,7 +96,7 @@ unsigned short SPRITE[] = {
 //	0x13C8,0x0FF0,
 //	0x0990,0x07E0,
 
-	0xffff,0x8D00,
+	0x8080,0x8D00,
 	0xffff,0x0000,
 	0xffff,0x0000,
 	0xffff,0x0000,
