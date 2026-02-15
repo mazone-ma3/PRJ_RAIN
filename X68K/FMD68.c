@@ -158,6 +158,16 @@ void  __attribute__((interrupt))int_fm(void)
 	unsigned char i, j, no, ch;
 	unsigned char data;
 
+// static変数で「今実行中か」をチェック
+	static volatile int inside = 0;
+	if(inside){
+		// 衝突発生！パレット0番（背景色）を一瞬赤くする（視覚的デバッグ）
+		// X68kのパレットレジスタを直接叩く
+//		*(unsigned short*)0xe82000 = 0x1f; // 赤
+		return;
+	}
+	inside = 1;
+
 	/* 割り込み on */
 	asm volatile("andi.w	#0x0f8ff,%sr\n");
 
@@ -261,6 +271,7 @@ playend:
 	ENDFRG = 0;
 playend2:
 //	asm volatile("andi.w	#0x0f8ff,%sr\n");
+	inside = 0;
 }
 
 static volatile uint8_t s_mfpBackup[0x18] = {
@@ -463,6 +474,10 @@ void play_fmdbgm(void)
 
 	if(init_sndint())
 		exit(1);
+
+	// OPMも全レジスタ消去
+	for(int r=0; r<256; r++) set_fm(r, 0);
+
 	set_fm(0x14, 0x2a);
 }
 //	getchar();
