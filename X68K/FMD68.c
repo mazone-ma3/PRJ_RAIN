@@ -164,6 +164,7 @@ void  __attribute__((interrupt))int_fm(void)
 		// 衝突発生！パレット0番（背景色）を一瞬赤くする（視覚的デバッグ）
 		// X68kのパレットレジスタを直接叩く
 //		*(unsigned short*)0xe82000 = 0x1f; // 赤
+		set_fm(0x14, 0x2a);
 		return;
 	}
 	inside = 1;
@@ -451,6 +452,10 @@ void play_fmdbgm(void)
 	STOPPARTS = 0;
 	ENDFRG = 0;
 	NSAVE = 0;
+
+	// OPMも全レジスタ消去
+	for(int r=0; r<256; r++) set_fm(r, 0);
+
 	for(i = 0; i < PARTSUU; ++i){
 		int j = 0xdb00-0x1100 + i * 2 + (no % 256) * 12 * 2;
 		COUNT[i] = 1;
@@ -474,9 +479,6 @@ void play_fmdbgm(void)
 
 	if(init_sndint())
 		exit(1);
-
-	// OPMも全レジスタ消去
-	for(int r=0; r<256; r++) set_fm(r, 0);
 
 	set_fm(0x14, 0x2a);
 }
