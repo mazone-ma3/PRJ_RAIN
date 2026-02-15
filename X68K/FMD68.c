@@ -157,17 +157,13 @@ void  __attribute__((interrupt))int_fm(void)
 {
 	unsigned char i, j, no, ch;
 	unsigned char data;
+	volatile unsigned char status;
 
-// static変数で「今実行中か」をチェック
-	static volatile int inside = 0;
-	if(inside){
-		// 衝突発生！パレット0番（背景色）を一瞬赤くする（視覚的デバッグ）
-		// X68kのパレットレジスタを直接叩く
-//		*(unsigned short*)0xe82000 = 0x1f; // 赤
-		set_fm(0x14, 0x2a);
-		return;
-	}
-	inside = 1;
+	/* YM2151 ステータス読み出し → タイマーフラグ自動クリア + IRQフラグもクリアされる */
+	status = *port2;	// $E90003 を読む（これだけでTimerフラグがリセットされる場合が多い）
+
+	/* 念のため明示的にIRQリセット（YM2151のレジスタ$04に0x80書き込みでIRQフラグクリア） */
+	set_fm(0x04, 0x80);	// IRQフラグ & Timerフラグを強制クリア（安全策）
 
 	/* 割り込み on */
 	asm volatile("andi.w	#0x0f8ff,%sr\n");
@@ -272,7 +268,6 @@ playend:
 	ENDFRG = 0;
 playend2:
 //	asm volatile("andi.w	#0x0f8ff,%sr\n");
-	inside = 0;
 }
 
 static volatile uint8_t s_mfpBackup[0x18] = {
@@ -452,10 +447,6 @@ void play_fmdbgm(void)
 	STOPPARTS = 0;
 	ENDFRG = 0;
 	NSAVE = 0;
-
-	// OPMも全レジスタ消去
-	for(int r=0; r<256; r++) set_fm(r, 0);
-
 	for(i = 0; i < PARTSUU; ++i){
 		int j = 0xdb00-0x1100 + i * 2 + (no % 256) * 12 * 2;
 		COUNT[i] = 1;
@@ -479,7 +470,6 @@ void play_fmdbgm(void)
 
 	if(init_sndint())
 		exit(1);
-
 	set_fm(0x14, 0x2a);
 }
 //	getchar();
