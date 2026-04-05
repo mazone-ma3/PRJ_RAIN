@@ -90,7 +90,7 @@ unsigned char org_pal[MAXCOLOR][3] = {
 	{ 15, 15, 15},
 };
 
-FILE *stream[2];
+volatile FILE *stream[2];
 
 
 /* MSX BLOADデータをファイルからメモリに読み込む */
@@ -112,7 +112,7 @@ short msxload(char *loadfil, unsigned short offset)
 	size = (buffer[0] + buffer[1] * 256) - (unsigned short)address;
 	fread( buffer, 1, 2, stream[0]);
 	address -= offset;
-//	printf("Load file %s. Address %x Size %x End %x\n", loadfil, address, size, (unsigned short)address + size);
+	printf("Load file %s. Address %x Size %x End %x\n", loadfil, address, size, (unsigned short)address + size);
 
 	fread( address , 1, size, stream[0]);
 	fclose(stream[0]);
@@ -1944,6 +1944,7 @@ void main(void)
 	*clicksw = 0;
 
 	bgmmode = checkbgm();
+//	getchar();
 
 	set_screenmode(5);
 	set_displaypage(0);
