@@ -1031,16 +1031,44 @@ void put_strings(unsigned char scr, unsigned char x, unsigned char y,  char *str
 }
 
 
-void put_numd(long j, unsigned char digit) __sdcccall(1)
-{
-	unsigned char i = digit;
+const unsigned long pow10[7] = {
+	1UL,			// 1Œ…–Ú
+	10UL,
+	100UL,
+	1000UL,
+	10000UL,
+	100000UL,	// 6Œ…–Ú
+	1000000UL,	// 7Œ…–Ú
+	10000000UL
+};
 
+void put_numd(long number, char digits) __sdcccall(1)
+{
+	unsigned char i = digits;
+	unsigned long p;
+	unsigned char digit, j = 0;
+
+/*	while(i--){
+		str_temp[i] = number % 10 + 0x30;
+		number /= 10;
+	}*/
+
+//	for (int i = 0; i < 7; i++) {
 	while(i--){
-		str_temp[i] = j % 10 + 0x30;
-		j /= 10;
+		digit = 0;
+
+		p = pow10[i];
+
+		while (number >= p) {	// ˆø‚«Zƒ‹[ƒv
+			number -= p;
+			digit++;
+		}
+		str_temp[j++] = digit + 0x30;
 	}
-	str_temp[digit] = '\0';
+
+	str_temp[digits] = '\0';
 }
+
 
 void score_display(void)
 {
